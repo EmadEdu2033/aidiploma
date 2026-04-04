@@ -59,10 +59,13 @@
   background: transparent !important;
   mix-blend-mode: normal !important;
   filter: none !important;
-  height: 36px;
+  height: 32px;
+  max-height: 32px;
   width: auto;
+  max-width: 80px;
   object-fit: contain;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* ===================== GUARANTEE BOX ===================== */
@@ -109,7 +112,14 @@
   direction: rtl; position: sticky; top: 0;
   background: rgba(10,14,39,0.98); backdrop-filter: blur(10px); z-index: 10;
 }
-.pay-page-logo { height: 40px; }
+.pay-page-logo {
+  height: 44px;
+  width: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #ffffff;
+  padding: 2px;
+}
 .pay-page-close {
   background: rgba(255,255,255,0.1); border: none; color: #fff;
   width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
