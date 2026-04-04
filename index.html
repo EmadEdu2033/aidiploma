@@ -22,40 +22,40 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  z-index: 0;
 }
 .cert-logo-wrap {
   border-radius: 50%;
   width: 100px;
   height: 100px;
-  padding: 12px;
+  padding: 0;
   box-shadow: 0 4px 20px rgba(255,255,255,0.2);
   flex-shrink: 0;
 }
 .payment-logo-wrap {
   border-radius: 12px;
-  padding: 8px 16px;
+  padding: 0;
   display: inline-flex;
   margin-bottom: 8px;
+  width: 80px;
+  height: 60px;
 }
 .cert-logo-wrap img,
 .payment-logo-wrap img {
-  position: relative;
-  z-index: 10;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  object-fit: contain;
-  mix-blend-mode: multiply !important;
+  object-fit: cover;
+  mix-blend-mode: normal !important;
   background: transparent !important;
-}
-.cert-logo-wrap img {
-  width: 72px;
-  height: 72px;
+  filter: none !important;
+  width: 100%;
+  height: 100%;
 }
 .payment-logo-wrap img {
-  width: 52px;
-  height: 32px;
+  object-fit: contain;
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
 }
 
 /* ===================== GUARANTEE BOX ===================== */
@@ -138,8 +138,8 @@
 .pay-step-btn img {
   background: transparent !important;
   mix-blend-mode: screen;
-  filter: brightness(0) invert(1);
-  height: 24px;
+  filter: none;
+  height: 28px;
   width: auto;
   object-fit: contain;
 }
@@ -167,7 +167,7 @@
   #sticky-cta-bar p:first-child { font-size: 0.85rem; }
   .outcomes-check-grid { grid-template-columns: 1fr; }
   .cert-logo-wrap { width: 80px; height: 80px; }
-  .cert-logo-wrap img { width: 56px; height: 56px; }
+  .cert-logo-wrap img { width: 100%; height: 100%; }
 }
 @media (min-width: 481px) and (max-width: 768px) {
   .guarantee-box { flex-direction: row; }
@@ -214,12 +214,11 @@ body {
 .transparent-logo {
   mix-blend-mode:screen; background:transparent!important;
 }
-.cert-accred-logos img,
 .trainer-logos img,
-.footer-logos img,
-.pay-method img {
+.footer-logos img {
   mix-blend-mode:screen; background:transparent!important;
 }
+/* cert-accred-logos img and pay-method img: blend mode handled by wrapper-specific rules */
 /* Badge image (LinkedIn badge) — on dark background */
 img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 
@@ -447,7 +446,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 .cert-accred { text-align:center; margin-top:40px; }
 .cert-accred p { font-size:15px; color:var(--accent-gold); font-weight:600; margin-bottom:16px; }
 .cert-accred-logos { display:flex; justify-content:center; align-items:center; gap:28px; }
-.cert-accred-logos img { height:55px; }
+/* .cert-accred-logos img height handled by .cert-logo-wrap img */
 
 /* === TRAINER === */
 .trainer-section {
