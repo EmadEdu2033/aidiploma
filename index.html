@@ -966,6 +966,152 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 }
 .fit-icon--yes { color: #22c55e; }
 .fit-icon--no  { color: #ef4444; }
+
+/* ══════════════════════════════════════════
+   DIPLOMA FIT — SCROLL ANIMATIONS
+   ══════════════════════════════════════════ */
+.diploma-fit-title { opacity: 0; }
+.fit-col--yes { opacity: 0; }
+.fit-col--no  { opacity: 0; }
+.fit-col--yes .fit-item { opacity: 0; transform: translateY(16px); }
+.fit-col--no  .fit-item { opacity: 0; transform: translateY(10px); }
+
+@keyframes titleReveal {
+  from { opacity: 0; transform: translateY(28px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.diploma-fit-title.animate {
+  animation: titleReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(60px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-60px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes yesBorderPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); border-color: rgba(34,197,94,0.15); }
+  50%      { box-shadow: 0 0 24px 0 rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); }
+}
+.fit-col--yes.animate {
+  animation: slideFromRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards,
+             yesBorderPulse 3s ease-in-out 2s infinite;
+}
+.fit-col--no.animate {
+  animation: slideFromLeft 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+/* Checkmark SVG draw */
+.fit-col--yes .fit-col-icon svg polyline {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+}
+.fit-col--yes.animate .fit-col-icon svg polyline {
+  animation: drawCheck 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards;
+}
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+/* X SVG draw + shake */
+.fit-col--no .fit-col-icon svg line {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+}
+.fit-col--no.animate .fit-col-icon svg line:first-child {
+  animation: drawX 0.3s ease 1.0s forwards;
+}
+.fit-col--no.animate .fit-col-icon svg line:last-child {
+  animation: drawX 0.3s ease 1.15s forwards,
+             shakeIcon 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1.45s forwards;
+}
+@keyframes drawX { to { stroke-dashoffset: 0; } }
+@keyframes shakeIcon {
+  0%, 100% { transform: rotate(0deg); }
+  20%      { transform: rotate(-8deg); }
+  40%      { transform: rotate(8deg); }
+  60%      { transform: rotate(-5deg); }
+  80%      { transform: rotate(5deg); }
+}
+
+/* YES items stagger */
+.fit-col--yes.animate .fit-item:nth-child(1) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.9s  forwards; }
+.fit-col--yes.animate .fit-item:nth-child(2) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.05s forwards; }
+.fit-col--yes.animate .fit-item:nth-child(3) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.2s  forwards; }
+.fit-col--yes.animate .fit-item:nth-child(4) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.35s forwards; }
+.fit-col--yes.animate .fit-item:nth-child(5) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.5s  forwards; }
+@keyframes itemRiseYes {
+  from { opacity: 0; transform: translateY(16px); text-shadow: 0 0 0 rgba(34,197,94,0); }
+  to   { opacity: 1; transform: translateY(0); text-shadow: 0 0 0 rgba(34,197,94,0); }
+}
+
+/* NO items stagger */
+.fit-col--no.animate .fit-item:nth-child(1) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.15s forwards; }
+.fit-col--no.animate .fit-item:nth-child(2) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.3s  forwards; }
+.fit-col--no.animate .fit-item:nth-child(3) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.45s forwards; }
+.fit-col--no.animate .fit-item:nth-child(4) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.6s  forwards; }
+@keyframes itemSinkNo {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hover — YES */
+.fit-item--yes {
+  transition: all 0.2s ease;
+}
+.fit-item--yes:hover {
+  color: #ffffff;
+  transform: translateX(-4px);
+}
+.fit-item--yes:hover .fit-icon--yes {
+  transform: scale(1.3);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Hover — NO */
+.fit-item--no {
+  transition: all 0.2s ease;
+}
+.fit-item--no:hover {
+  color: rgba(197, 208, 234, 0.5);
+  transform: translateX(4px);
+}
+.fit-item--no:hover .fit-icon--no {
+  transform: scale(1.2) rotate(15deg);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Mobile: replace slide with fadeUp */
+@media (max-width: 640px) {
+  @keyframes fadeUpMobile {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .fit-col--yes.animate {
+    animation: fadeUpMobile 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards,
+               yesBorderPulse 3s ease-in-out 2s infinite !important;
+  }
+  .fit-col--no.animate {
+    animation: fadeUpMobile 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards !important;
+  }
+}
+
+/* Reduced motion: skip all */
+@media (prefers-reduced-motion: reduce) {
+  .diploma-fit-title,
+  .fit-col--yes,
+  .fit-col--no,
+  .fit-col--yes .fit-item,
+  .fit-col--no .fit-item,
+  .fit-col--yes .fit-col-icon svg polyline,
+  .fit-col--no .fit-col-icon svg line {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
 /* ══════════════════════════════════════════ */
 
 </style>
@@ -1934,6 +2080,29 @@ gsap.to('.header-logo-img', {
       bar.style.display = 'none';
     }
   }, { passive: true });
+})();
+</script>
+
+<script>
+/* Diploma-fit scroll animations */
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var targets = document.querySelectorAll(
+    '.diploma-fit-title, .fit-col--yes, .fit-col--no'
+  );
+  if (!targets.length) return;
+  var observer = new IntersectionObserver(
+    function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+  );
+  targets.forEach(function(el) { observer.observe(el); });
 })();
 </script>
 
