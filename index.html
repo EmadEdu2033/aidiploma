@@ -864,6 +864,110 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   margin: 0;
 }
 
+/* ══════════════════════════════════════════
+   DIPLOMA FIT SECTION
+   ══════════════════════════════════════════ */
+.diploma-fit-section {
+  padding: clamp(60px, 8vw, 100px) 20px;
+  background: linear-gradient(180deg, #0a0e27 0%, #0d1540 100%);
+  direction: rtl;
+}
+.diploma-fit-title {
+  text-align: center;
+  color: #ffffff;
+  font-family: 'Alexandria', sans-serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  margin-bottom: clamp(32px, 5vw, 56px);
+}
+.diploma-fit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 640px) {
+  .diploma-fit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.fit-col {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 28px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.fit-col--yes {
+  border-color: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.04);
+}
+.fit-col--no {
+  border-color: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.04);
+}
+.fit-col-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  direction: rtl;
+}
+.fit-col-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fit-col-icon--yes {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+.fit-col-icon--no {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+.fit-col-title {
+  font-family: 'Alexandria', sans-serif;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  font-weight: 700;
+  direction: rtl;
+}
+.fit-col-title--yes { color: #22c55e; }
+.fit-col-title--no  { color: #ef4444; }
+.fit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  direction: rtl;
+  color: #c5d0ea;
+  font-family: 'Alexandria', sans-serif;
+  font-size: clamp(0.88rem, 1.8vw, 0.97rem);
+  line-height: 1.65;
+}
+.fit-icon {
+  font-size: 1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.fit-icon--yes { color: #22c55e; }
+.fit-icon--no  { color: #ef4444; }
+/* ══════════════════════════════════════════ */
+
 </style>
 </head>
 <body>
@@ -1088,7 +1192,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 
   <div class="container" style="padding-top:60px;padding-bottom:60px;">
     <div class="section-header">
-      <h2 style="color:#fff;">هنا يأتي دور <span style="color:var(--gold,#f0c040);">دبلومة FutureTeach AI</span></h2>
+      <h2 style="color:#fff;">هنا يأتي دور <span style="color:var(--gold,#f0c040);">دبلومة FutureTeach Gen AI for Educators</span></h2>
       <div class="gold-line"></div>
       <p style="color:#b0bcd8;margin-top:10px;">برنامج تطبيقي مكثّف (20 ساعة) يمنحك الأدوات والمهارات الجاهزة لتحويل فصلك الدراسي إلى بيئة تعلّم ذكية.</p>
       <p style="color:#fff;font-weight:600;margin-top:6px;">بعد الانتهاء من الدبلومة ستكون قادراً على:</p>
@@ -1101,6 +1205,84 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
     </div>
     <div style="text-align:center;margin-top:36px;">
       <a href="#pricing" class="btn-primary">احجز مكانك في الدفعة القادمة ←</a>
+    </div>
+  </div>
+</section>
+
+<section id="diploma-fit" class="diploma-fit-section">
+  <div class="container">
+    <h2 class="diploma-fit-title">هل هذه الدبلومة مناسبة لك؟</h2>
+    <div class="diploma-fit-grid">
+
+      <!-- FOR YOU -->
+      <div class="fit-col fit-col--yes">
+        <div class="fit-col-header">
+          <span class="fit-col-icon fit-col-icon--yes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <h3 class="fit-col-title fit-col-title--yes">مناسبة لك إذا كنت...</h3>
+        </div>
+        <ul class="fit-list">
+          <li class="fit-item fit-item--yes">
+            <span class="fit-icon fit-icon--yes">✓</span>
+            <span>معلماً يريد مواكبة التطور التكنولوجي</span>
+          </li>
+          <li class="fit-item fit-item--yes">
+            <span class="fit-icon fit-icon--yes">✓</span>
+            <span>تبحث عن طرق لتوفير وقت التحضير</span>
+          </li>
+          <li class="fit-item fit-item--yes">
+            <span class="fit-icon fit-icon--yes">✓</span>
+            <span>ترغب في تقديم تجربة تعليمية ممتعة</span>
+          </li>
+          <li class="fit-item fit-item--yes">
+            <span class="fit-icon fit-icon--yes">✓</span>
+            <span>تريد شهادة معتمدة تضيف لمسيرتك</span>
+          </li>
+          <li class="fit-item fit-item--yes">
+            <span class="fit-icon fit-icon--yes">✓</span>
+            <span>مستعداً لتعلّم مهارات جديدة ومفيدة</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- NOT FOR YOU -->
+      <div class="fit-col fit-col--no">
+        <div class="fit-col-header">
+          <span class="fit-col-icon fit-col-icon--no">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                 stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </span>
+          <h3 class="fit-col-title fit-col-title--no">ليست لك إذا كنت...</h3>
+        </div>
+        <ul class="fit-list">
+          <li class="fit-item fit-item--no">
+            <span class="fit-icon fit-icon--no">✗</span>
+            <span>تبحث عن حلول سحرية بدون جهد</span>
+          </li>
+          <li class="fit-item fit-item--no">
+            <span class="fit-icon fit-icon--no">✗</span>
+            <span>غير مستعد لتخصيص وقت للتعلم</span>
+          </li>
+          <li class="fit-item fit-item--no">
+            <span class="fit-icon fit-icon--no">✗</span>
+            <span>ترفض التغيير وتفضّل الطرق التقليدية فقط</span>
+          </li>
+          <li class="fit-item fit-item--no">
+            <span class="fit-icon fit-icon--no">✗</span>
+            <span>لا تعمل في مجال التعليم أو التدريب</span>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </div>
 </section>
