@@ -1165,6 +1165,250 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 
+<!-- ═══ INTRO QUESTIONS ═══ -->
+<style>
+#intro-questions {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--navy-deep, #050c1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  direction: rtl;
+  padding: 40px 20px 100px;
+  overflow: hidden;
+}
+#intro-questions .iq-stage {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#intro-questions .iq-q {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  padding: 0 10px;
+  pointer-events: none;
+}
+#intro-questions .iq-q.iq-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+#intro-questions .iq-q.iq-out {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+#intro-questions .iq-text {
+  font-size: clamp(20px, 3.6vw, 34px);
+  font-weight: 700;
+  color: var(--white, #fff);
+  line-height: 1.8;
+  max-width: 900px;
+}
+#intro-questions .iq-mark {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+#intro-questions .iq-mark svg {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+#intro-questions .iq-mark.iq-underline svg {
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  width: 100%;
+  height: 14px;
+}
+#intro-questions .iq-mark.iq-circle svg {
+  left: -10%;
+  top: -22%;
+  width: 120%;
+  height: 150%;
+}
+#intro-questions .iq-mark path {
+  fill: none;
+  stroke: #e82b2b;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--iq-dash, 500);
+  stroke-dashoffset: var(--iq-dash, 500);
+  transition: stroke-dashoffset 0.7s ease;
+}
+#intro-questions .iq-q.iq-in .iq-mark path {
+  stroke-dashoffset: 0;
+}
+#iq-skip {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9995;
+  padding: 10px 26px;
+  font-size: 15px;
+  display: none;
+}
+#intro-questions.iq-active ~ #iq-skip,
+body.iq-running #iq-skip {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: reduce) {
+  #intro-questions .iq-stage {
+    flex-direction: column;
+    gap: 16px;
+    min-height: auto;
+  }
+  #intro-questions .iq-q {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  #intro-questions .iq-mark path {
+    stroke-dashoffset: 0;
+  }
+}
+</style>
+<section id="intro-questions" aria-label="أسئلة تمهيدية">
+  <div class="iq-stage">
+    <div class="iq-q" data-q="1">
+      <p class="iq-text">لو أنت معلم… أكيد مريت بده من قبل</p>
+    </div>
+    <div class="iq-q" data-q="2">
+      <p class="iq-text">
+        كل ما تبدأ تتعلم، تلاقي
+        <span class="iq-mark iq-underline">
+          أدوات جديدة
+          <svg viewBox="0 0 200 14" preserveAspectRatio="none">
+            <path d="M2 8 Q 50 2, 100 7 T 198 6" style="--iq-dash: 220;"/>
+          </svg>
+        </span>
+        ومش عارف تبدأ منين
+      </p>
+    </div>
+    <div class="iq-q" data-q="3">
+      <p class="iq-text">
+        حاسس إن الذكاء الاصطناعي مهم لكن
+        <span class="iq-mark iq-underline">
+          البداية مش واضحة
+          <svg viewBox="0 0 200 14" preserveAspectRatio="none">
+            <path d="M2 9 Q 60 3, 110 8 T 198 7" style="--iq-dash: 230;"/>
+          </svg>
+        </span>
+      </p>
+    </div>
+    <div class="iq-q" data-q="4">
+      <p class="iq-text">
+        المحتوى كتير لكن الطريق
+        <span class="iq-mark iq-circle">
+          مش مترتب
+          <svg viewBox="0 0 200 100" preserveAspectRatio="none">
+            <path d="M100 8 C 160 6, 194 30, 192 52 C 190 78, 140 94, 96 92 C 48 90, 10 74, 8 50 C 6 26, 44 10, 100 8 Z" style="--iq-dash: 520;"/>
+          </svg>
+        </span>
+      </p>
+    </div>
+    <div class="iq-q" data-q="5">
+      <p class="iq-text">محتاج مسار أو خريطة واحدة تختصر لك كل التشتيت ده؟</p>
+    </div>
+  </div>
+</section>
+<a href="#pain-points" id="iq-skip" class="btn-outline">تخطّى ←</a>
+
+<!-- PAIN POINTS STICKY SCROLL -->
+<section id="pain-points" style="padding:0;background:linear-gradient(160deg,#0a0e27 0%,#0d1b4b 60%,#111f60 100%);">
+  <div class="container" style="padding-top:80px;padding-bottom:40px;text-align:center;">
+    <div class="section-header">
+      <h2 style="color:#fff;">هل هذا هو <span style="color:var(--gold,#f0c040);">"الواقع"</span> الذي تعيشه؟</h2>
+      <div class="gold-line"></div>
+    </div>
+  </div>
+
+  <div class="pain-sticky-wrapper" id="painStickyWrapper">
+    <div class="pain-sticky-inner" id="painStickyInner">
+      <div class="pain-layout">
+        <div class="pain-cards-col" id="painCardsCol">
+          <div class="pain-card" data-card-idx="0">
+            <span class="pain-x-icon">✗</span>
+            <p>تُضيّع ساعات في تحضير الدروس يدوياً وتنتهي بنتيجة تقليدية لا تُشعل حماس الطلاب.</p>
+          </div>
+          <div class="pain-card" data-card-idx="1">
+            <span class="pain-x-icon">✗</span>
+            <p>تستنزف طاقتك في تصحيح الواجبات والأوراق يدوياً بدلاً من التفرغ لتطوير مهاراتك التدريسية.</p>
+          </div>
+          <div class="pain-card" data-card-idx="2">
+            <span class="pain-x-icon">✗</span>
+            <p>تشعر أن الذكاء الاصطناعي عالم غامض لا تعرف من أين تبدأ ولا كيف تستفيد منه داخل الفصل الدراسي.</p>
+          </div>
+          <div class="pain-card" data-card-idx="3">
+            <span class="pain-x-icon">✗</span>
+            <p>تجد صعوبة في إنتاج محتوى بصري وتفاعلي يشدّ انتباه الطلاب في عصر السوشيال ميديا والتشتت الرقمي.</p>
+          </div>
+        </div>
+        <div class="pain-text-col">
+          <h3 class="pain-title-right">هل هذا هو <span class="pain-highlight">"الواقع"</span> الذي تعيشه</h3>
+          <h4 class="pain-subtitle-right">خلف الكواليس ؟</h4>
+          <p class="pain-desc-right">في الظاهر أنت المعلم الناجح الذي يعتمد عليه الجميع.. لكن الحقيقة التي لا يراها غيرك هي أن كل يوم مليء بالوقت المهدر والحلول المؤقتة التي تستنزف طاقتك وشغفك.</p>
+          <div class="pain-progress-dots" id="painProgressDots">
+            <span class="dot active" data-dot="0"></span>
+            <span class="dot" data-dot="1"></span>
+            <span class="dot" data-dot="2"></span>
+            <span class="dot" data-dot="3"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pain-not-fault-section">
+    <div class="container">
+      <h3 class="pain-not-fault-title">هذا ليس <span style="color:#e63946;text-decoration:line-through;text-decoration-thickness:3px;">خطأك</span></h3>
+      <p class="pain-not-fault-sub">لقد كنت تفتقد إلى <strong style="color:var(--gold,#f0c040);">إطار عمل أدوات الذكاء الاصطناعي الصحيح</strong> التي تحوّل طريقة تدريسك بالكامل.</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:60px;padding-bottom:60px;">
+    <div class="section-header">
+      <h2 style="color:#fff;">هنا يأتي دور <span style="color:var(--gold,#f0c040);">دبلومة FutureTeach Gen AI for Educators</span></h2>
+      <div class="gold-line"></div>
+      <p style="color:#b0bcd8;margin-top:10px;">برنامج تطبيقي مكثّف (20 ساعة) يمنحك الأدوات والمهارات الجاهزة لتحويل فصلك الدراسي إلى بيئة تعلّم ذكية.</p>
+      <p style="color:#fff;font-weight:600;margin-top:6px;">بعد الانتهاء من الدبلومة ستكون قادراً على:</p>
+    </div>
+    <div class="outcomes-check-grid">
+      <div class="outcome-check-card"><div class="check-icon">✅</div><p>توفير <strong>70% من وقت تحضير الدروس</strong> باستخدام أدوات الذكاء الاصطناعي المخصصة للمعلمين.</p></div>
+      <div class="outcome-check-card"><div class="check-icon">✅</div><p>تصميم <strong>تقييمات ذكية تصحّح نفسها</strong> وتعطي تغذية راجعة فورية ومخصصة لكل طالب.</p></div>
+      <div class="outcome-check-card"><div class="check-icon">✅</div><p>إنتاج <strong>محتوى تعليمي احترافي</strong> — فيديو، صور، عروض تقديمية — في دقائق لا ساعات.</p></div>
+      <div class="outcome-check-card"><div class="check-icon">✅</div><p>بناء <strong>بصمتك الرقمية كمعلم متميز</strong> في عصر الذكاء الاصطناعي وتعزيز مكانتك المهنية.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="#pricing" class="btn-primary">احجز مكانك في الدفعة القادمة ←</a>
+    </div>
+  </div>
+</section>
+
+<!-- DIPLOMA TRANSITION -->
+<section id="diploma-transition" class="section" style="padding:60px 20px;">
+  <div class="section-header">
+    <h2>هنا يأتي دور دبلومة FutureTeach Gen AI for Educators</h2>
+  </div>
+</section>
+
 <!-- HERO -->
 <section class="hero" id="hero">
   <canvas id="particle-canvas"></canvas>
@@ -1178,7 +1422,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
       <div class="stat-card"><div class="num" data-target="4">0</div><div class="label">كورسات مباشرة أونلاين</div></div>
       <div class="stat-card"><div class="num" data-target="30" data-prefix="+">0</div><div class="label">أداة ذكاء اصطناعي</div></div>
     </div>
-    <div class="date-banner">📅 تبدأ الدبلومة: الجمعة 17 أبريل 2026 | الساعة 7 مساءً بتوقيت القاهرة | كل يوم جمعة</div>
+    <div class="date-banner">الجمعة 1 مايو 2026 — الساعة 6:00 مساءً</div>
     <div class="hero-cta-row">
       <a href="#pricing" class="btn-primary">سجّل الآن &larr;</a>
       <a href="#curriculum" class="btn-outline">اكتشف المنهج</a>
@@ -1311,77 +1555,6 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
           <span class="tool-pill">Carnegie Learning</span>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- PAIN POINTS STICKY SCROLL -->
-<section id="pain-points" style="padding:0;background:linear-gradient(160deg,#0a0e27 0%,#0d1b4b 60%,#111f60 100%);">
-  <div class="container" style="padding-top:80px;padding-bottom:40px;text-align:center;">
-    <div class="section-header">
-      <h2 style="color:#fff;">هل هذا هو <span style="color:var(--gold,#f0c040);">"الواقع"</span> الذي تعيشه؟</h2>
-      <div class="gold-line"></div>
-    </div>
-  </div>
-
-  <div class="pain-sticky-wrapper" id="painStickyWrapper">
-    <div class="pain-sticky-inner" id="painStickyInner">
-      <div class="pain-layout">
-        <div class="pain-cards-col" id="painCardsCol">
-          <div class="pain-card" data-card-idx="0">
-            <span class="pain-x-icon">✗</span>
-            <p>تُضيّع ساعات في تحضير الدروس يدوياً وتنتهي بنتيجة تقليدية لا تُشعل حماس الطلاب.</p>
-          </div>
-          <div class="pain-card" data-card-idx="1">
-            <span class="pain-x-icon">✗</span>
-            <p>تستنزف طاقتك في تصحيح الواجبات والأوراق يدوياً بدلاً من التفرغ لتطوير مهاراتك التدريسية.</p>
-          </div>
-          <div class="pain-card" data-card-idx="2">
-            <span class="pain-x-icon">✗</span>
-            <p>تشعر أن الذكاء الاصطناعي عالم غامض لا تعرف من أين تبدأ ولا كيف تستفيد منه داخل الفصل الدراسي.</p>
-          </div>
-          <div class="pain-card" data-card-idx="3">
-            <span class="pain-x-icon">✗</span>
-            <p>تجد صعوبة في إنتاج محتوى بصري وتفاعلي يشدّ انتباه الطلاب في عصر السوشيال ميديا والتشتت الرقمي.</p>
-          </div>
-        </div>
-        <div class="pain-text-col">
-          <h3 class="pain-title-right">هل هذا هو <span class="pain-highlight">"الواقع"</span> الذي تعيشه</h3>
-          <h4 class="pain-subtitle-right">خلف الكواليس ؟</h4>
-          <p class="pain-desc-right">في الظاهر أنت المعلم الناجح الذي يعتمد عليه الجميع.. لكن الحقيقة التي لا يراها غيرك هي أن كل يوم مليء بالوقت المهدر والحلول المؤقتة التي تستنزف طاقتك وشغفك.</p>
-          <div class="pain-progress-dots" id="painProgressDots">
-            <span class="dot active" data-dot="0"></span>
-            <span class="dot" data-dot="1"></span>
-            <span class="dot" data-dot="2"></span>
-            <span class="dot" data-dot="3"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="pain-not-fault-section">
-    <div class="container">
-      <h3 class="pain-not-fault-title">هذا ليس <span style="color:#e63946;text-decoration:line-through;text-decoration-thickness:3px;">خطأك</span></h3>
-      <p class="pain-not-fault-sub">لقد كنت تفتقد إلى <strong style="color:var(--gold,#f0c040);">إطار عمل أدوات الذكاء الاصطناعي الصحيح</strong> التي تحوّل طريقة تدريسك بالكامل.</p>
-    </div>
-  </div>
-
-  <div class="container" style="padding-top:60px;padding-bottom:60px;">
-    <div class="section-header">
-      <h2 style="color:#fff;">هنا يأتي دور <span style="color:var(--gold,#f0c040);">دبلومة FutureTeach Gen AI for Educators</span></h2>
-      <div class="gold-line"></div>
-      <p style="color:#b0bcd8;margin-top:10px;">برنامج تطبيقي مكثّف (20 ساعة) يمنحك الأدوات والمهارات الجاهزة لتحويل فصلك الدراسي إلى بيئة تعلّم ذكية.</p>
-      <p style="color:#fff;font-weight:600;margin-top:6px;">بعد الانتهاء من الدبلومة ستكون قادراً على:</p>
-    </div>
-    <div class="outcomes-check-grid">
-      <div class="outcome-check-card"><div class="check-icon">✅</div><p>توفير <strong>70% من وقت تحضير الدروس</strong> باستخدام أدوات الذكاء الاصطناعي المخصصة للمعلمين.</p></div>
-      <div class="outcome-check-card"><div class="check-icon">✅</div><p>تصميم <strong>تقييمات ذكية تصحّح نفسها</strong> وتعطي تغذية راجعة فورية ومخصصة لكل طالب.</p></div>
-      <div class="outcome-check-card"><div class="check-icon">✅</div><p>إنتاج <strong>محتوى تعليمي احترافي</strong> — فيديو، صور، عروض تقديمية — في دقائق لا ساعات.</p></div>
-      <div class="outcome-check-card"><div class="check-icon">✅</div><p>بناء <strong>بصمتك الرقمية كمعلم متميز</strong> في عصر الذكاء الاصطناعي وتعزيز مكانتك المهنية.</p></div>
-    </div>
-    <div style="text-align:center;margin-top:36px;">
-      <a href="#pricing" class="btn-primary">احجز مكانك في الدفعة القادمة ←</a>
     </div>
   </div>
 </section>
@@ -1658,6 +1831,207 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
       <div class="wa-confirm">✅ بعد إتمام التسجيل، سيتم إضافتك فوراً لمجموعة واتساب الخاصة بالدبلومة</div>
     </div>
   </div>
+</section>
+
+<!-- ═══ COUNTDOWN SECTION ═══ -->
+<style>
+#countdown-section {
+  background: var(--navy-mid, #132344);
+  padding: 52px 20px 48px;
+  text-align: center;
+  direction: rtl;
+}
+#countdown-section .cd-label {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #e82b2b;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+#countdown-section .cd-heading {
+  font-size: clamp(22px, 3.2vw, 32px);
+  font-weight: 800;
+  color: #e0e8ff;
+  margin-bottom: 28px;
+}
+#countdown-section .cd-boxes {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 16px);
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+}
+#countdown-section .cd-box {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 14px;
+  padding: clamp(12px, 2.5vw, 22px) clamp(10px, 2vw, 26px);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08),
+              0 8px 28px rgba(0,0,0,0.4);
+}
+#countdown-section .cd-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: glassShine 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+#countdown-section .cd-num {
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #007fff, #4fedd2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  line-height: 1;
+}
+#countdown-section .cd-lbl {
+  font-size: clamp(0.62rem, 1.6vw, 0.75rem);
+  color: #8899cc;
+  margin-top: 6px;
+  display: block;
+}
+#countdown-section .cd-cta {
+  margin-top: 32px;
+  display: inline-block;
+}
+#countdown-section .cd-expired {
+  color: #e82b2b;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  margin: 24px 0;
+}
+@keyframes glassShine {
+  0%   { left: -60%; }
+  50%  { left: 120%; }
+  100% { left: 120%; }
+}
+
+/* ═══ STICKY TIMER BAR ═══ */
+#sticky-timer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9990;
+  background: rgba(10,14,39,0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(0,127,255,0.2);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  padding: 10px 20px;
+  direction: rtl;
+  transform: translateY(0);
+  transition: transform 0.4s ease;
+}
+#sticky-timer-bar.stb-hidden {
+  transform: translateY(100%);
+}
+#sticky-timer-bar .stb-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+#sticky-timer-bar .stb-mini {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: clamp(4px, 1vw, 8px);
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#sticky-timer-bar .stb-box {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 70px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 4px 8px;
+  text-align: center;
+}
+#sticky-timer-bar .stb-num {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #007fff, #4fedd2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  line-height: 1.1;
+}
+#sticky-timer-bar .stb-lbl {
+  font-size: clamp(0.55rem, 1.2vw, 0.65rem);
+  color: #8899cc;
+  display: block;
+  margin-top: 2px;
+}
+#sticky-timer-bar .stb-sep {
+  color: #007fff;
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+#sticky-timer-bar .stb-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+#sticky-timer-bar .stb-meta {
+  color: #8899cc;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+#sticky-timer-bar .stb-cta {
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+#sticky-timer-bar .stb-expired {
+  color: #e82b2b;
+  font-weight: 800;
+  flex: 1 1 auto;
+  text-align: center;
+}
+@media (max-width: 520px) {
+  #sticky-timer-bar .stb-meta { display: none; }
+}
+</style>
+<section id="countdown-section">
+  <span class="cd-label">عرض محدود — ينتهي قريباً</span>
+  <h2 class="cd-heading">السعر الحالي ينتهي خلال</h2>
+  <div class="cd-boxes" id="cd-boxes">
+    <div class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></div>
+    <div class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></div>
+    <div class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></div>
+    <div class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></div>
+  </div>
+  <div class="cd-expired" id="cd-expired" style="display:none;">انتهى العرض</div>
+  <a href="#pricing" class="btn-primary cd-cta">سجّل الآن ←</a>
 </section>
 
 <!-- FOOTER -->
@@ -2134,6 +2508,301 @@ gsap.to('.header-logo-img', {
     { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
   );
   targets.forEach(function(el) { observer.observe(el); });
+})();
+</script>
+
+<!-- ═══ STICKY TIMER BAR ═══ -->
+<div id="sticky-timer-bar">
+  <div class="stb-inner">
+    <div class="stb-mini" id="stb-mini">
+      <div class="stb-box"><span class="stb-num" id="stb-days">00</span><span class="stb-lbl">أيام</span></div>
+      <span class="stb-sep">:</span>
+      <div class="stb-box"><span class="stb-num" id="stb-hours">00</span><span class="stb-lbl">ساعات</span></div>
+      <span class="stb-sep">:</span>
+      <div class="stb-box"><span class="stb-num" id="stb-mins">00</span><span class="stb-lbl">دقائق</span></div>
+      <span class="stb-sep">:</span>
+      <div class="stb-box"><span class="stb-num" id="stb-secs">00</span><span class="stb-lbl">ثواني</span></div>
+    </div>
+    <div class="stb-right">
+      <span class="stb-meta">ينتهي العرض في:</span>
+      <a href="#pricing" class="btn-primary stb-cta">سجّل الآن ←</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ENROLL POPUP ═══ -->
+<div id="enroll-popup" style="
+  position:fixed; bottom:76px; right:18px; z-index:9980;
+  background:rgba(12,20,46,0.97);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px; padding:12px 16px;
+  max-width:290px; min-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  direction:rtl;
+  opacity:0; transform:translateX(60px);
+  pointer-events:none;
+  transition:opacity 0.35s ease, transform 0.35s ease;
+">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="position:relative;flex-shrink:0;">
+      <span id="ep-dot" style="
+        display:block;width:10px;height:10px;
+        border-radius:50%;background:#22c55e;
+      "></span>
+      <span style="
+        position:absolute;top:50%;left:50%;
+        width:10px;height:10px;border-radius:50%;
+        background:rgba(34,197,94,0.4);
+        transform:translate(-50%,-50%);
+        animation:epRipple 1.8s ease-out infinite;
+      "></span>
+    </div>
+    <span id="ep-flag" style="font-size:1.3rem;flex-shrink:0;">🇪🇬</span>
+    <div style="flex:1;min-width:0;">
+      <p id="ep-name" style="
+        font-size:0.88rem;font-weight:700;
+        color:#e0e8ff;margin:0;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      ">محمد أ.</p>
+      <p style="font-size:0.75rem;color:#8899cc;margin:2px 0 0;">
+        أكمل التسجيل في الدبلومة
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes epRipple {
+  0%   { width:10px;height:10px;opacity:0.7; }
+  100% { width:28px;height:28px;opacity:0; }
+}
+/* Suppress the old sticky CTA bar in favor of #sticky-timer-bar */
+#sticky-cta-bar { display: none !important; }
+</style>
+
+<script>
+/* ═══ HIDE OLD STICKY CTA BAR ═══ */
+(function(){
+  var old = document.getElementById('sticky-cta-bar');
+  if (old) old.style.display = 'none';
+})();
+
+/* ═══ INTRO QUESTIONS ANIMATION ═══ */
+(function(){
+  var section = document.getElementById('intro-questions');
+  var skipBtn = document.getElementById('iq-skip');
+  if (!section) return;
+  var questions = section.querySelectorAll('.iq-q');
+  var total = questions.length;
+  if (!total) return;
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function finishAndScroll() {
+    section.style.display = 'none';
+    document.body.classList.remove('iq-running');
+    var target = document.getElementById('pain-points');
+    if (target) {
+      try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      catch (e) { window.scrollTo(0, target.offsetTop); }
+    }
+  }
+
+  if (skipBtn) {
+    skipBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      finishAndScroll();
+    });
+  }
+
+  if (reduced) {
+    // Static visible list, hide after 2s
+    Array.prototype.forEach.call(questions, function(q){
+      q.classList.add('iq-in');
+      q.style.position = 'relative';
+      q.style.inset = 'auto';
+    });
+    setTimeout(finishAndScroll, 2000);
+    return;
+  }
+
+  document.body.classList.add('iq-running');
+
+  var idx = 0;
+  function showNext() {
+    if (idx >= total) {
+      finishAndScroll();
+      return;
+    }
+    var q = questions[idx];
+    // reset dash on marks
+    var paths = q.querySelectorAll('.iq-mark path');
+    Array.prototype.forEach.call(paths, function(p){
+      p.style.strokeDashoffset = '';
+      // force reflow to restart transition
+      void p.getBoundingClientRect();
+    });
+    q.classList.remove('iq-out');
+    q.classList.add('iq-in');
+    setTimeout(function(){
+      q.classList.remove('iq-in');
+      q.classList.add('iq-out');
+      setTimeout(function(){
+        q.classList.remove('iq-out');
+        idx++;
+        showNext();
+      }, 450);
+    }, 500 + 1800); // fade-in complete + stay
+  }
+  // Small delay so page has time to render
+  setTimeout(showNext, 250);
+})();
+
+/* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
+(function(){
+  var DEADLINE = new Date('2026-04-18T00:00:00+02:00').getTime();
+
+  var el = {
+    cdD: document.getElementById('cd-days'),
+    cdH: document.getElementById('cd-hours'),
+    cdM: document.getElementById('cd-mins'),
+    cdS: document.getElementById('cd-secs'),
+    stbD: document.getElementById('stb-days'),
+    stbH: document.getElementById('stb-hours'),
+    stbM: document.getElementById('stb-mins'),
+    stbS: document.getElementById('stb-secs'),
+    cdBoxes: document.getElementById('cd-boxes'),
+    cdExpired: document.getElementById('cd-expired'),
+    stbMini: document.getElementById('stb-mini')
+  };
+
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+
+  function updateCountdowns() {
+    var now = Date.now();
+    var diff = DEADLINE - now;
+    if (diff <= 0) {
+      if (el.cdBoxes) el.cdBoxes.style.display = 'none';
+      if (el.cdExpired) el.cdExpired.style.display = 'block';
+      if (el.stbMini) {
+        el.stbMini.innerHTML = '<span class="stb-expired">انتهى العرض</span>';
+      }
+      return false;
+    }
+    var days  = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins  = Math.floor((diff % 3600000) / 60000);
+    var secs  = Math.floor((diff % 60000) / 1000);
+    var d = pad(days), h = pad(hours), m = pad(mins), s = pad(secs);
+    if (el.cdD)  el.cdD.textContent  = d;
+    if (el.cdH)  el.cdH.textContent  = h;
+    if (el.cdM)  el.cdM.textContent  = m;
+    if (el.cdS)  el.cdS.textContent  = s;
+    if (el.stbD) el.stbD.textContent = d;
+    if (el.stbH) el.stbH.textContent = h;
+    if (el.stbM) el.stbM.textContent = m;
+    if (el.stbS) el.stbS.textContent = s;
+    return true;
+  }
+
+  if (!updateCountdowns()) return;
+  setInterval(updateCountdowns, 1000);
+})();
+
+/* ═══ STICKY TIMER BAR VISIBILITY ═══ */
+(function(){
+  var bar = document.getElementById('sticky-timer-bar');
+  var cd = document.getElementById('countdown-section');
+  if (!bar || !cd) return;
+  // Visible from page load
+  bar.classList.remove('stb-hidden');
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          bar.classList.add('stb-hidden');
+        } else {
+          bar.classList.remove('stb-hidden');
+        }
+      });
+    }, { threshold: 0.05 });
+    io.observe(cd);
+  }
+})();
+
+/* ═══ LIVE ENROLLMENT POPUPS ═══ */
+(function(){
+  var names = [
+    {n:'محمد أ.',       f:'🇪🇬'}, {n:'أحمد م.',        f:'🇪🇬'},
+    {n:'مريم ح.',       f:'🇸🇦'}, {n:'فاطمة ع.',       f:'🇪🇬'},
+    {n:'خالد إ.',       f:'🇪🇬'}, {n:'يوسف ح.',        f:'🇯🇴'},
+    {n:'رامي ي.',       f:'🇪🇬'}, {n:'دينا ش.',        f:'🇪🇬'},
+    {n:'سلمى ك.',       f:'🇸🇾'}, {n:'مصطفى ج.',       f:'🇪🇬'},
+    {n:'ريهام ع.',      f:'🇪🇬'}, {n:'نادية ر.',       f:'🇸🇦'},
+    {n:'كريم س.',       f:'🇪🇬'}, {n:'طارق ف.',        f:'🇪🇬'},
+    {n:'نادين ب.',      f:'🇱🇧'}, {n:'عمر خ.',         f:'🇪🇬'},
+    {n:'شيماء ن.',      f:'🇪🇬'}, {n:'نورة ش.',        f:'🇸🇦'},
+    {n:'مروة ز.',       f:'🇪🇬'}, {n:'هاني ب.',        f:'🇪🇬'},
+    {n:'خلود ب.',       f:'🇯🇴'}, {n:'لمياء م.',       f:'🇪🇬'},
+    {n:'إيمان ث.',      f:'🇪🇬'}, {n:'فيصل ح.',        f:'🇸🇦'},
+    {n:'دعاء م.',       f:'🇪🇬'}, {n:'وليد غ.',        f:'🇪🇬'},
+    {n:'باسل ع.',       f:'🇸🇾'}, {n:'سامي ح.',        f:'🇪🇬'},
+    {n:'رانيا ف.',      f:'🇪🇬'}, {n:'عبدالله ز.',     f:'🇸🇦'},
+    {n:'ياسمين ع.',     f:'🇪🇬'}, {n:'أحمد ش.',        f:'🇪🇬'},
+    {n:'كارمن ج.',      f:'🇱🇧'}, {n:'نهى ر.',         f:'🇪🇬'},
+    {n:'حسام د.',       f:'🇪🇬'}, {n:'شيخة م.',        f:'🇦🇪'},
+    {n:'منى ك.',        f:'🇪🇬'}, {n:'وائل ب.',        f:'🇪🇬'},
+    {n:'عماد ز.',       f:'🇯🇴'}, {n:'هبة ص.',         f:'🇪🇬'},
+    {n:'محمود ط.',      f:'🇪🇬'}, {n:'سلطان ب.',       f:'🇴🇲'},
+    {n:'إسراء ر.',      f:'🇪🇬'}, {n:'علاء م.',        f:'🇪🇬'},
+    {n:'رنا ف.',        f:'🇸🇾'}, {n:'نيرمين ف.',      f:'🇪🇬'},
+    {n:'تامر ع.',       f:'🇪🇬'}, {n:'لطيفة ن.',       f:'🇦🇪'},
+    {n:'ضياء ح.',       f:'🇪🇬'}, {n:'ريم س.',         f:'🇸🇦'},
+    {n:'هند ر.',        f:'🇪🇬'}, {n:'علي م.',         f:'🇪🇬'},
+    {n:'منيرة د.',      f:'🇶🇦'}, {n:'صفاء ي.',        f:'🇪🇬'},
+    {n:'حنان خ.',       f:'🇪🇬'}, {n:'ناصر ع.',        f:'🇸🇦'},
+    {n:'نادر ش.',       f:'🇪🇬'}, {n:'لارا م.',        f:'🇱🇧'},
+    {n:'رضا ب.',        f:'🇪🇬'}, {n:'عبدالعزيز ر.',   f:'🇸🇦'}
+  ];
+
+  var popup  = document.getElementById('enroll-popup');
+  var epName = document.getElementById('ep-name');
+  var epFlag = document.getElementById('ep-flag');
+  var idx = 0;
+  var hideTimer;
+
+  function showPopup() {
+    if (!popup) return;
+    var d = names[idx % names.length];
+    idx++;
+    epName.textContent = d.n;
+    epFlag.textContent = d.f;
+    popup.style.opacity   = '1';
+    popup.style.transform = 'translateX(0)';
+    popup.style.pointerEvents = 'auto';
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function(){
+      popup.style.opacity   = '0';
+      popup.style.transform = 'translateX(60px)';
+      popup.style.pointerEvents = 'none';
+    }, 4200);
+  }
+
+  function nextDelay() {
+    var r = Math.random();
+    if (r < 0.30) return 10000 + Math.random() * 10000;   // 10–20 s
+    if (r < 0.70) return 25000 + Math.random() * 25000;   // 25–50 s
+    return 60000 + Math.random() * 120000;                 // 60–180 s
+  }
+
+  function schedule() {
+    setTimeout(function(){ showPopup(); schedule(); }, nextDelay());
+  }
+
+  showPopup();   // first popup fires immediately on page load
+  schedule();
 })();
 </script>
 
