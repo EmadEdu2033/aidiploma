@@ -1267,6 +1267,12 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 body.iq-running #iq-skip {
   display: inline-block;
 }
+/* While intro-questions is active, suppress bottom chrome that would cover/distract */
+body.iq-running #sticky-timer-bar,
+body.iq-running #enroll-popup,
+body.iq-running #wa-float-btn {
+  display: none !important;
+}
 @media (prefers-reduced-motion: reduce) {
   #intro-questions .iq-stage {
     flex-direction: column;
@@ -2599,9 +2605,14 @@ gsap.to('.header-logo-img', {
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Mark running immediately so bottom chrome stays hidden during intro
+  document.body.classList.add('iq-running');
+
   function finishAndScroll() {
     section.style.display = 'none';
     document.body.classList.remove('iq-running');
+    // Dispatch event so other features (popups) can start
+    try { document.dispatchEvent(new CustomEvent('introFinished')); } catch (e) {}
     var target = document.getElementById('pain-points');
     if (target) {
       try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
@@ -2626,8 +2637,6 @@ gsap.to('.header-logo-img', {
     setTimeout(finishAndScroll, 2000);
     return;
   }
-
-  document.body.classList.add('iq-running');
 
   var idx = 0;
   function showNext() {
@@ -2655,8 +2664,23 @@ gsap.to('.header-logo-img', {
       }, 450);
     }, 500 + 1800); // fade-in complete + stay
   }
-  // Small delay so page has time to render
-  setTimeout(showNext, 250);
+
+  // Wait for preloader to finish before starting animation so questions
+  // are not hidden behind the preloader overlay.
+  function startWhenReady() {
+    var pre = document.getElementById('preloader');
+    if (!pre || pre.style.display === 'none' ||
+        getComputedStyle(pre).display === 'none') {
+      setTimeout(showNext, 150);
+      return;
+    }
+    setTimeout(startWhenReady, 120);
+  }
+  if (document.readyState === 'complete') {
+    startWhenReady();
+  } else {
+    window.addEventListener('load', function(){ setTimeout(startWhenReady, 50); });
+  }
 })();
 
 /* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
@@ -2801,8 +2825,16 @@ gsap.to('.header-logo-img', {
     setTimeout(function(){ showPopup(); schedule(); }, nextDelay());
   }
 
-  showPopup();   // first popup fires immediately on page load
-  schedule();
+  function start() {
+    showPopup();  // first popup fires once intro is done (or on load if no intro)
+    schedule();
+  }
+
+  if (document.body.classList.contains('iq-running')) {
+    document.addEventListener('introFinished', start, { once: true });
+  } else {
+    start();
+  }
 })();
 </script>
 
