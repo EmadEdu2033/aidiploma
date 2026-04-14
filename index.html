@@ -1159,16 +1159,22 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   z-index: -1;
-  background: linear-gradient(
-    160deg,
-    var(--brand-blue-dark) 0%,
-    var(--brand-blue-mid)  35%,
-    var(--brand-green-mid) 65%,
-    var(--brand-green-dark) 100%
-  );
   pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%,
+      rgba(10,90,210,0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 85% 20%,
+      rgba(18,175,100,0.17) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 55% at 50% 50%,
+      rgba(8,50,150,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 15% 80%,
+      rgba(14,160,90,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 80%,
+      rgba(6,40,130,0.16) 0%, transparent 65%);
+  background-color: #060d1e;
 }
 .feature-card, .tool-card, .pricing-card, .certificate-card,
 [class*="feature-"], [class*="tool-item"], [class*="card"] {
@@ -1214,27 +1220,66 @@ header h2, nav h2 { text-shadow: none !important; }
 </style>
 
 <style id="pain-cards-fix">
-/* Force pain-points section fully opaque */
+/* Pain-points section opaque background */
 #pain-points {
   background: #04091a !important;
   opacity: 1 !important;
   visibility: visible !important;
   position: relative !important;
   z-index: 2 !important;
+  perspective: 1200px;
 }
-/* Only the active card renders — inactive cards are removed from layout
-   so text can never overlap. .show keeps its transform/opacity transition. */
-#pain-points .pain-card:not(.show) {
-  display: none !important;
-}
-#pain-points .pain-card.show {
-  background: rgba(15, 28, 75, 0.98) !important;
+/* Base card: absolutely positioned, transitions handle 3D movement */
+#pain-points .pain-card {
+  position: absolute !important;
+  top: 0; left: 0; right: 0;
+  transition: transform 0.65s cubic-bezier(0.16,1,0.3,1),
+              opacity 0.5s ease,
+              box-shadow 0.5s ease !important;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+  background: rgba(15,28,75,0.97) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 16px !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  opacity: 1 !important;
-  color: #f1f5f9 !important;
-  position: absolute !important;
+}
+/* 3D stack states by offset (0 = active, +N = past, -N = upcoming) */
+#pain-points .pain-card[data-offset="0"] {
+  transform: translateY(0) scale(1) rotateX(0deg);
+  opacity: 1;
+  z-index: 10;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+}
+#pain-points .pain-card[data-offset="1"] {
+  transform: translateY(-22px) scale(0.96) rotateX(4deg);
+  opacity: 0.72;
+  z-index: 9;
+  pointer-events: none;
+}
+#pain-points .pain-card[data-offset="2"] {
+  transform: translateY(-42px) scale(0.92) rotateX(8deg);
+  opacity: 0.42;
+  z-index: 8;
+  pointer-events: none;
+}
+#pain-points .pain-card[data-offset="3"],
+#pain-points .pain-card[data-offset="4"],
+#pain-points .pain-card[data-offset="5"] {
+  transform: translateY(-54px) scale(0.88) rotateX(10deg);
+  opacity: 0.18;
+  z-index: 7;
+  pointer-events: none;
+}
+#pain-points .pain-card[data-offset="-1"],
+#pain-points .pain-card[data-offset="-2"],
+#pain-points .pain-card[data-offset="-3"],
+#pain-points .pain-card[data-offset="-4"],
+#pain-points .pain-card[data-offset="-5"] {
+  transform: translateY(80px) scale(0.88);
+  opacity: 0;
+  z-index: 6;
+  pointer-events: none;
 }
 #pain-points .pain-card p,
 #pain-points .pain-card span {
@@ -1248,6 +1293,64 @@ header h2, nav h2 { text-shadow: none !important; }
 #pain-points .pain-card .pain-x-icon {
   color: #e63946 !important;
   -webkit-text-fill-color: #e63946 !important;
+}
+</style>
+
+<style id="hero-anim-fix">
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroScale {
+  from { opacity: 0; transform: scaleX(0); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.85); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero .hero-badge  { animation: heroFadeUp 0.7s 0.05s cubic-bezier(0.16,1,0.3,1) both; }
+.hero h1           { animation: heroFadeUp 0.8s 0.15s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .en-sub      { animation: heroFadeUp 0.8s 0.30s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .gold-divider{ animation: heroScale  0.6s 0.45s ease both; transform-origin: center; }
+.hero .stat-card:nth-child(1) { animation: heroFadeUp 0.7s 0.50s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .stat-card:nth-child(2) { animation: heroFadeUp 0.7s 0.60s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .stat-card:nth-child(3) { animation: heroFadeUp 0.7s 0.70s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .date-banner { animation: heroFadeUp 0.7s 0.80s cubic-bezier(0.16,1,0.3,1) both; }
+.hero .hero-cta-row{ animation: heroFadeUp 0.7s 0.90s cubic-bezier(0.16,1,0.3,1) both; }
+#countdown-section .cd-boxes { animation: countUp 0.8s 0.95s cubic-bezier(0.16,1,0.3,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-badge, .hero h1, .hero .en-sub, .hero .gold-divider,
+  .hero .stat-card, .hero .date-banner, .hero .hero-cta-row,
+  #countdown-section .cd-boxes { animation: none !important; }
+}
+</style>
+
+<style id="responsive-fix">
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+@media (max-width: 768px) {
+  #pain-points .pain-card {
+    padding: 18px 16px !important;
+  }
+  #pain-points .pain-card p {
+    font-size: 0.95rem !important;
+  }
+}
+@media (max-width: 380px) {
+  .hero h1 { font-size: 1.5rem !important; }
+  .hero .stat-card { min-width: 100px !important; }
+}
+@media (min-width: 1024px) {
+  #pain-points .pain-card {
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    left: 0 !important; right: 0 !important;
+  }
 }
 </style>
 
@@ -1274,7 +1377,7 @@ header h2, nav h2 { text-shadow: none !important; }
 <style>
 #intro-questions-wrapper {
   position: relative;
-  height: 500vh;
+  height: auto;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1282,49 +1385,47 @@ header h2, nav h2 { text-shadow: none !important; }
 #intro-questions {
   margin-top: 0 !important;
   padding-top: 0 !important;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  position: relative;
   width: 100%;
   background: var(--navy-deep, #050c1a);
   display: flex;
   align-items: center;
   justify-content: center;
   direction: rtl;
-  padding: 40px 20px;
+  padding: clamp(60px, 10vh, 120px) 20px;
   overflow: hidden;
 }
 #intro-questions .iq-stage {
   position: relative;
   width: 100%;
   max-width: 960px;
-  min-height: 220px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: clamp(22px, 3vh, 36px);
+}
+@keyframes iqFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 #intro-questions .iq-q {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
+  opacity: 0;
+  transform: translateY(24px);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  opacity: 0;
-  transform: translateY(20px);
-  /* Non-active questions: no transition, hide instantly */
-  transition: none;
   padding: 0 10px;
-  pointer-events: none;
   will-change: opacity, transform;
 }
 #intro-questions .iq-q.iq-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  animation: iqFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
 }
 #intro-questions .iq-text {
-  font-size: clamp(20px, 3.6vw, 34px);
+  font-size: clamp(18px, 3.2vw, 30px);
   font-weight: 700;
   color: var(--white, #fff);
   line-height: 1.8;
@@ -1361,33 +1462,20 @@ header h2, nav h2 { text-shadow: none !important; }
   stroke-linejoin: round;
   stroke-dasharray: var(--iq-dash, 500);
   stroke-dashoffset: var(--iq-dash, 500);
-  transition: stroke-dashoffset 0.7s ease;
+  transition: stroke-dashoffset 0.9s ease 0.2s;
 }
-/* Once a mark is drawn, keep it drawn */
 #intro-questions .iq-q.iq-drawn .iq-mark path {
   stroke-dashoffset: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  #intro-questions-wrapper { height: auto; }
-  #intro-questions {
-    position: relative;
-    height: auto;
-    min-height: 100dvh;
-  }
-  #intro-questions .iq-stage {
-    flex-direction: column;
-    gap: 16px;
-    min-height: auto;
-  }
   #intro-questions .iq-q {
-    position: relative;
-    inset: auto;
     opacity: 1;
     transform: none;
-    transition: none;
+    animation: none;
   }
   #intro-questions .iq-mark path {
     stroke-dashoffset: 0;
+    transition: none;
   }
 }
 </style>
@@ -2428,10 +2516,14 @@ gsap.to('.header-logo-img', {
     if (idx === current) return;
     current = idx;
 
-    cards.forEach((c, i) => {
-      c.classList.remove('show', 'behind');
-      if (i < idx)  c.classList.add('behind');
-      if (i === idx) c.classList.add('show');
+    cards.forEach((card, i) => {
+      card.classList.remove('show', 'behind');
+      if (i < idx)  card.classList.add('behind');
+      if (i === idx) card.classList.add('show');
+      var offset = i - idx;
+      if (offset > 5)  offset = 5;
+      if (offset < -5) offset = -5;
+      card.setAttribute('data-offset', String(offset));
     });
     dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   }
@@ -2642,7 +2734,8 @@ gsap.to('.header-logo-img', {
 
 <!-- ═══ ENROLL POPUP ═══ -->
 <div id="enroll-popup" style="
-  position:fixed; bottom:76px; right:18px; z-index:9980;
+  position:fixed; top:calc(var(--header-height,68px) + 14px); right:18px; bottom:auto; left:auto; z-index:9980;
+  max-width:min(300px, calc(100vw - 32px));
   background:rgba(12,20,46,0.97);
   backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
   border:1px solid rgba(255,255,255,0.12);
@@ -2698,14 +2791,12 @@ gsap.to('.header-logo-img', {
   if (old) old.style.display = 'none';
 })();
 
-/* ═══ INTRO QUESTIONS: SCROLL-DRIVEN ═══ */
+/* ═══ INTRO QUESTIONS: TIME-BASED STAGGER ═══ */
 (function(){
-  var wrapper = document.getElementById('intro-questions-wrapper');
   var section = document.getElementById('intro-questions');
-  if (!wrapper || !section) return;
+  if (!section) return;
   var questions = section.querySelectorAll('.iq-q');
-  var total = questions.length;
-  if (!total) return;
+  if (!questions.length) return;
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2716,7 +2807,6 @@ gsap.to('.header-logo-img', {
   }
 
   if (reduced) {
-    // Show all questions statically, no scroll-pinning, no animations
     Array.prototype.forEach.call(questions, function(q){
       q.classList.add('iq-active','iq-drawn');
     });
@@ -2724,57 +2814,36 @@ gsap.to('.header-logo-img', {
     return;
   }
 
-  // Ensure popups/bottom-chrome are not hidden by old iq-running class
   document.body.classList.remove('iq-running');
 
-  var activeIdx = -1;
-  var drawn = new Array(total).fill(false);
-  var ticking = false;
+  var triggered = false;
+  function revealAll() {
+    if (triggered) return;
+    triggered = true;
+    Array.prototype.forEach.call(questions, function(q, i){
+      setTimeout(function(){
+        q.classList.add('iq-active');
+        // Trigger SVG underline draw shortly after line shows
+        setTimeout(function(){ q.classList.add('iq-drawn'); }, 300);
+      }, i * 700);
+    });
+    // Fire introFinished after last question animates
+    setTimeout(fireIntroFinishedOnce, questions.length * 700 + 600);
+  }
 
-  function update() {
-    ticking = false;
-    var rect = wrapper.getBoundingClientRect();
-    var vh = window.innerHeight || document.documentElement.clientHeight;
-    var wrapperHeight = wrapper.offsetHeight;
-    // scrollProgress based on how far the wrapper has been scrolled past
-    var progress = (-rect.top) / (wrapperHeight - vh);
-    if (progress < 0) progress = 0;
-    if (progress > 1) progress = 1;
-    var idx = Math.floor(progress * total);
-    if (idx >= total) idx = total - 1;
-
-    if (idx !== activeIdx) {
-      activeIdx = idx;
-      for (var i = 0; i < total; i++) {
-        if (i === idx) {
-          questions[i].classList.add('iq-active');
-          if (!drawn[i]) {
-            drawn[i] = true;
-            // Trigger SVG stroke animation once, keep drawn
-            questions[i].classList.add('iq-drawn');
-          }
-        } else {
-          questions[i].classList.remove('iq-active');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          revealAll();
+          obs.unobserve(entry.target);
         }
-      }
-    }
-
-    if (progress >= 0.95) {
-      fireIntroFinishedOnce();
-    }
+      });
+    }, { threshold: 0.1 });
+    obs.observe(section);
+  } else {
+    revealAll();
   }
-
-  function onScroll() {
-    if (!ticking) {
-      window.requestAnimationFrame(update);
-      ticking = true;
-    }
-  }
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-  // Initial state
-  update();
 })();
 
 /* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
@@ -2929,7 +2998,8 @@ gsap.to('.header-logo-img', {
   var popup  = document.getElementById('enroll-popup');
   var epName = document.getElementById('ep-name');
   var epFlag = document.getElementById('ep-flag');
-  var idx = 0;
+  // Random starting offset so each page load starts at a different name
+  var idx = Math.floor(Math.random() * names.length);
   var hideTimer;
 
   function showPopup() {
@@ -2951,20 +3021,28 @@ gsap.to('.header-logo-img', {
     }, 4200);
   }
 
-  function nextDelay() {
-    var r = Math.random();
-    if (r < 0.30) return 10000 + Math.random() * 10000;
-    if (r < 0.70) return 25000 + Math.random() * 25000;
-    return 60000 + Math.random() * 120000;
-  }
-
-  function schedule() {
-    setTimeout(function(){ showPopup(); schedule(); }, nextDelay());
+  function scheduleNext() {
+    var pools = [
+      { min:12,  max:20,  weight:35 },
+      { min:20,  max:45,  weight:35 },
+      { min:45,  max:90,  weight:20 },
+      { min:90,  max:180, weight:10 }
+    ];
+    var roll = Math.random() * 100, cum = 0, range = pools[0];
+    for (var i = 0; i < pools.length; i++) {
+      cum += pools[i].weight;
+      if (roll < cum) { range = pools[i]; break; }
+    }
+    var delay = (range.min + Math.random() * (range.max - range.min)) * 1000;
+    setTimeout(function(){ showPopup(); scheduleNext(); }, delay);
   }
 
   function start() {
-    showPopup();
-    schedule();
+    // First popup after 3–8 seconds (not immediately)
+    setTimeout(function(){
+      showPopup();
+      scheduleNext();
+    }, 3000 + Math.random() * 5000);
   }
 
   if (document.body.classList.contains('iq-running')) {
