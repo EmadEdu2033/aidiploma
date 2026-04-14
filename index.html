@@ -1206,18 +1206,26 @@ header h2, nav h2 { text-shadow: none !important; }
 
 <!-- ═══ INTRO QUESTIONS ═══ -->
 <style>
+#intro-questions-wrapper {
+  position: relative;
+  height: 500vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 #intro-questions {
   margin-top: 0 !important;
   padding-top: 0 !important;
-  position: relative;
-  min-height: 100dvh;
+  position: sticky;
+  top: 0;
+  height: 100vh;
   width: 100%;
   background: var(--navy-deep, #050c1a);
   display: flex;
   align-items: center;
   justify-content: center;
   direction: rtl;
-  padding: 40px 20px 100px;
+  padding: 40px 20px;
   overflow: hidden;
 }
 #intro-questions .iq-stage {
@@ -1238,18 +1246,16 @@ header h2, nav h2 { text-shadow: none !important; }
   text-align: center;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* Non-active questions: no transition, hide instantly */
+  transition: none;
   padding: 0 10px;
   pointer-events: none;
+  will-change: opacity, transform;
 }
-#intro-questions .iq-q.iq-in {
+#intro-questions .iq-q.iq-active {
   opacity: 1;
   transform: translateY(0);
-}
-#intro-questions .iq-q.iq-out {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 #intro-questions .iq-text {
   font-size: clamp(20px, 3.6vw, 34px);
@@ -1291,30 +1297,17 @@ header h2, nav h2 { text-shadow: none !important; }
   stroke-dashoffset: var(--iq-dash, 500);
   transition: stroke-dashoffset 0.7s ease;
 }
-#intro-questions .iq-q.iq-in .iq-mark path {
+/* Once a mark is drawn, keep it drawn */
+#intro-questions .iq-q.iq-drawn .iq-mark path {
   stroke-dashoffset: 0;
 }
-#iq-skip {
-  position: fixed;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9995;
-  padding: 10px 26px;
-  font-size: 15px;
-  display: none;
-}
-#intro-questions.iq-active ~ #iq-skip,
-body.iq-running #iq-skip {
-  display: inline-block;
-}
-/* While intro-questions is active, suppress bottom chrome that would cover/distract */
-body.iq-running #sticky-timer-bar,
-body.iq-running #enroll-popup,
-body.iq-running #wa-float-btn {
-  display: none !important;
-}
 @media (prefers-reduced-motion: reduce) {
+  #intro-questions-wrapper { height: auto; }
+  #intro-questions {
+    position: relative;
+    height: auto;
+    min-height: 100dvh;
+  }
   #intro-questions .iq-stage {
     flex-direction: column;
     gap: 16px;
@@ -1332,6 +1325,7 @@ body.iq-running #wa-float-btn {
   }
 }
 </style>
+<div id="intro-questions-wrapper">
 <section id="intro-questions" aria-label="أسئلة تمهيدية">
   <div class="iq-stage">
     <div class="iq-q" data-q="1">
@@ -1376,7 +1370,7 @@ body.iq-running #wa-float-btn {
     </div>
   </div>
 </section>
-<a href="#pain-points" id="iq-skip" class="btn-outline">تخطّى ←</a>
+</div>
 
 <!-- PAIN POINTS STICKY SCROLL -->
 <section id="pain-points" style="padding:0;background:linear-gradient(160deg,#0a0e27 0%,#0d1b4b 60%,#111f60 100%);">
@@ -2638,93 +2632,83 @@ gsap.to('.header-logo-img', {
   if (old) old.style.display = 'none';
 })();
 
-/* ═══ INTRO QUESTIONS ANIMATION ═══ */
+/* ═══ INTRO QUESTIONS: SCROLL-DRIVEN ═══ */
 (function(){
+  var wrapper = document.getElementById('intro-questions-wrapper');
   var section = document.getElementById('intro-questions');
-  var skipBtn = document.getElementById('iq-skip');
-  if (!section) return;
+  if (!wrapper || !section) return;
   var questions = section.querySelectorAll('.iq-q');
   var total = questions.length;
   if (!total) return;
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Mark running immediately so bottom chrome stays hidden during intro
-  document.body.classList.add('iq-running');
-
-  function finishAndScroll() {
-    section.style.display = 'none';
-    document.body.classList.remove('iq-running');
-    // Dispatch event so other features (popups) can start
+  function fireIntroFinishedOnce() {
+    if (fireIntroFinishedOnce._done) return;
+    fireIntroFinishedOnce._done = true;
     try { document.dispatchEvent(new CustomEvent('introFinished')); } catch (e) {}
-    var target = document.getElementById('pain-points');
-    if (target) {
-      try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      catch (e) { window.scrollTo(0, target.offsetTop); }
-    }
-  }
-
-  if (skipBtn) {
-    skipBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      finishAndScroll();
-    });
   }
 
   if (reduced) {
-    // Static visible list, hide after 2s
+    // Show all questions statically, no scroll-pinning, no animations
     Array.prototype.forEach.call(questions, function(q){
-      q.classList.add('iq-in');
-      q.style.position = 'relative';
-      q.style.inset = 'auto';
+      q.classList.add('iq-active','iq-drawn');
     });
-    setTimeout(finishAndScroll, 2000);
+    fireIntroFinishedOnce();
     return;
   }
 
-  var idx = 0;
-  function showNext() {
-    if (idx >= total) {
-      finishAndScroll();
-      return;
+  // Ensure popups/bottom-chrome are not hidden by old iq-running class
+  document.body.classList.remove('iq-running');
+
+  var activeIdx = -1;
+  var drawn = new Array(total).fill(false);
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var rect = wrapper.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var wrapperHeight = wrapper.offsetHeight;
+    // scrollProgress based on how far the wrapper has been scrolled past
+    var progress = (-rect.top) / (wrapperHeight - vh);
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+    var idx = Math.floor(progress * total);
+    if (idx >= total) idx = total - 1;
+
+    if (idx !== activeIdx) {
+      activeIdx = idx;
+      for (var i = 0; i < total; i++) {
+        if (i === idx) {
+          questions[i].classList.add('iq-active');
+          if (!drawn[i]) {
+            drawn[i] = true;
+            // Trigger SVG stroke animation once, keep drawn
+            questions[i].classList.add('iq-drawn');
+          }
+        } else {
+          questions[i].classList.remove('iq-active');
+        }
+      }
     }
-    var q = questions[idx];
-    // reset dash on marks
-    var paths = q.querySelectorAll('.iq-mark path');
-    Array.prototype.forEach.call(paths, function(p){
-      p.style.strokeDashoffset = '';
-      // force reflow to restart transition
-      void p.getBoundingClientRect();
-    });
-    q.classList.remove('iq-out');
-    q.classList.add('iq-in');
-    setTimeout(function(){
-      q.classList.remove('iq-in');
-      q.classList.add('iq-out');
-      setTimeout(function(){
-        q.classList.remove('iq-out');
-        idx++;
-        showNext();
-      }, 450);
-    }, 500 + 1800); // fade-in complete + stay
+
+    if (progress >= 0.95) {
+      fireIntroFinishedOnce();
+    }
   }
 
-  // Wait for preloader to finish before starting animation so questions
-  // are not hidden behind the preloader overlay.
-  function startWhenReady() {
-    var pre = document.getElementById('preloader');
-    if (!pre || pre.style.display === 'none' ||
-        getComputedStyle(pre).display === 'none') {
-      setTimeout(showNext, 150);
-      return;
+  function onScroll() {
+    if (!ticking) {
+      window.requestAnimationFrame(update);
+      ticking = true;
     }
-    setTimeout(startWhenReady, 120);
   }
-  if (document.readyState === 'complete') {
-    startWhenReady();
-  } else {
-    window.addEventListener('load', function(){ setTimeout(startWhenReady, 50); });
-  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  // Initial state
+  update();
 })();
 
 /* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
