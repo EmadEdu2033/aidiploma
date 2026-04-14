@@ -729,7 +729,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
    ===================== */
 .pain-sticky-wrapper {
   position: relative;
-  height: 280vh; /* scroll travel space */
+  height: 500vh; /* scroll travel: (cards + 1) * 100vh for bidirectional comfort */
 }
 .pain-sticky-inner {
   position: sticky;
@@ -752,7 +752,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 @media(max-width: 768px) {
   .pain-layout { grid-template-columns: 1fr; gap: 30px; padding: 0 20px; }
   .pain-text-col { display: none; }
-  .pain-sticky-wrapper { height: 380vh; }
+  .pain-sticky-wrapper { height: 500vh; }
 }
 .pain-cards-col {
   position: relative;
@@ -1354,6 +1354,35 @@ html, body {
 }
 </style>
 
+<style id="scroll-smooth">
+html { scroll-behavior: smooth; }
+[data-offset], .intro-line, [class*="anim"] {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+img, video { height: auto; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+</style>
+
+<style id="pain-ghost-remove">
+/* Remove any decorative/ghost elements behind pain-points cards */
+#pain-points [class*="icon-bg"],
+#pain-points [class*="bg-shape"],
+#pain-points [class*="deco"],
+#pain-points [class*="ghost"],
+#pain-points [class*="placeholder"],
+#pain-points [class*="pattern"],
+#pain-points [class*="overlay-icon"] {
+  display: none !important;
+}
+/* Ensure the card column has no leftover ghost background */
+#pain-points .pain-cards-col::before,
+#pain-points .pain-cards-col::after {
+  display: none !important;
+  content: none !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -1373,157 +1402,109 @@ html, body {
   <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </header>
 
-<!-- ═══ INTRO QUESTIONS ═══ -->
-<style>
-#intro-questions-wrapper {
+<!-- ═══ INTRO QUESTIONS — STICKY SCROLL-PINNED ═══ -->
+<style id="intro-scroll-style">
+#intro-scroll-outer {
+  height: calc(5 * 100vh);
   position: relative;
-  height: auto;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-#intro-questions {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  position: relative;
-  width: 100%;
   background: var(--navy-deep, #050c1a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  direction: rtl;
-  padding: clamp(60px, 10vh, 120px) 20px;
-  overflow: hidden;
-}
-#intro-questions .iq-stage {
-  position: relative;
   width: 100%;
-  max-width: 960px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(22px, 3vh, 36px);
 }
-@keyframes iqFadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-#intro-questions .iq-q {
-  position: relative;
-  inset: auto;
-  opacity: 0;
-  transform: translateY(24px);
+#intro-scroll-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  padding-top: var(--header-height, 72px);
+  direction: rtl;
+}
+#intro-question-display {
   text-align: center;
-  padding: 0 10px;
-  will-change: opacity, transform;
-}
-#intro-questions .iq-q.iq-active {
-  animation: iqFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
-}
-#intro-questions .iq-text {
-  font-size: clamp(18px, 3.2vw, 30px);
-  font-weight: 700;
-  color: var(--white, #fff);
-  line-height: 1.8;
+  padding: 0 clamp(16px, 5vw, 80px);
   max-width: 900px;
+  width: 100%;
 }
-#intro-questions .iq-mark {
+#intro-question-display .q-text {
+  font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.7;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  margin: 0;
+}
+#intro-question-display .q-text mark {
+  background: none;
+  color: inherit;
   position: relative;
   display: inline-block;
-  white-space: nowrap;
 }
-#intro-questions .iq-mark svg {
+#intro-question-display .q-text mark::after {
+  content: '';
   position: absolute;
-  overflow: visible;
-  pointer-events: none;
+  bottom: -4px;
+  left: 0; right: 0;
+  height: 3px;
+  background: #ef4444;
+  border-radius: 2px;
+  transform-origin: left;
+  animation: underlineDraw 0.5s 0.3s cubic-bezier(0.16,1,0.3,1) both;
 }
-#intro-questions .iq-mark.iq-underline svg {
-  left: 0;
-  right: 0;
-  bottom: -8px;
-  width: 100%;
-  height: 14px;
+@keyframes underlineDraw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
-#intro-questions .iq-mark.iq-circle svg {
-  left: -10%;
-  top: -22%;
-  width: 120%;
-  height: 150%;
+#intro-progress-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 32px;
 }
-#intro-questions .iq-mark path {
-  fill: none;
-  stroke: #e82b2b;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: var(--iq-dash, 500);
-  stroke-dashoffset: var(--iq-dash, 500);
-  transition: stroke-dashoffset 0.9s ease 0.2s;
+#intro-progress-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.3s ease, transform 0.3s ease;
 }
-#intro-questions .iq-q.iq-drawn .iq-mark path {
-  stroke-dashoffset: 0;
+#intro-progress-dots span.active {
+  background: #ffffff;
+  transform: scale(1.3);
+}
+#intro-scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.4);
+  animation: bounceDown 2s ease-in-out infinite;
+}
+@keyframes bounceDown {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%     { transform: translateX(-50%) translateY(8px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #intro-questions .iq-q {
-    opacity: 1;
-    transform: none;
-    animation: none;
-  }
-  #intro-questions .iq-mark path {
-    stroke-dashoffset: 0;
-    transition: none;
-  }
+  #intro-question-display .q-text mark::after { animation: none; transform: scaleX(1); }
+  #intro-scroll-hint { animation: none; }
 }
 </style>
-<div id="intro-questions-wrapper">
-<section id="intro-questions" aria-label="أسئلة تمهيدية">
-  <div class="iq-stage">
-    <div class="iq-q" data-q="1">
-      <p class="iq-text">لو أنت معلم… أكيد مريت بده من قبل</p>
+<div id="intro-scroll-outer">
+  <div id="intro-scroll-sticky">
+    <div id="intro-question-display">
+      <p class="q-text">لو أنت معلم… أكيد مريت بده من قبل</p>
+      <div id="intro-progress-dots">
+        <span class="active"></span><span></span><span></span><span></span><span></span>
+      </div>
     </div>
-    <div class="iq-q" data-q="2">
-      <p class="iq-text">
-        كل ما تبدأ تتعلم، تلاقي
-        <span class="iq-mark iq-underline">
-          أدوات جديدة
-          <svg viewBox="0 0 200 14" preserveAspectRatio="none">
-            <path d="M2 8 Q 50 2, 100 7 T 198 6" style="--iq-dash: 220;"/>
-          </svg>
-        </span>
-        ومش عارف تبدأ منين
-      </p>
-    </div>
-    <div class="iq-q" data-q="3">
-      <p class="iq-text">
-        حاسس إن الذكاء الاصطناعي مهم لكن
-        <span class="iq-mark iq-underline">
-          البداية مش واضحة
-          <svg viewBox="0 0 200 14" preserveAspectRatio="none">
-            <path d="M2 9 Q 60 3, 110 8 T 198 7" style="--iq-dash: 230;"/>
-          </svg>
-        </span>
-      </p>
-    </div>
-    <div class="iq-q" data-q="4">
-      <p class="iq-text">
-        المحتوى كتير لكن الطريق
-        <span class="iq-mark iq-circle">
-          مش مترتب
-          <svg viewBox="0 0 200 100" preserveAspectRatio="none">
-            <path d="M100 8 C 160 6, 194 30, 192 52 C 190 78, 140 94, 96 92 C 48 90, 10 74, 8 50 C 6 26, 44 10, 100 8 Z" style="--iq-dash: 520;"/>
-          </svg>
-        </span>
-      </p>
-    </div>
-    <div class="iq-q" data-q="5">
-      <p class="iq-text">محتاج مسار أو خريطة واحدة تختصر لك كل التشتيت ده؟</p>
+    <div id="intro-scroll-hint" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <polyline points="7,14 12,19 17,14"/>
+      </svg>
     </div>
   </div>
-</section>
 </div>
 
 <!-- PAIN POINTS STICKY SCROLL -->
@@ -2520,7 +2501,8 @@ gsap.to('.header-logo-img', {
       card.classList.remove('show', 'behind');
       if (i < idx)  card.classList.add('behind');
       if (i === idx) card.classList.add('show');
-      var offset = i - idx;
+      /* offset semantics: +N = past/stacked behind, -N = upcoming/hidden below, 0 = active */
+      var offset = idx - i;
       if (offset > 5)  offset = 5;
       if (offset < -5) offset = -5;
       card.setAttribute('data-offset', String(offset));
@@ -2791,14 +2773,42 @@ gsap.to('.header-logo-img', {
   if (old) old.style.display = 'none';
 })();
 
-/* ═══ INTRO QUESTIONS: TIME-BASED STAGGER ═══ */
-(function(){
-  var section = document.getElementById('intro-questions');
-  if (!section) return;
-  var questions = section.querySelectorAll('.iq-q');
-  if (!questions.length) return;
+/* ═══ DYNAMIC HEADER HEIGHT → CSS VAR ═══ */
+(function() {
+  var header = document.querySelector('header, nav, #header, .header, [class*="navbar"]');
+  if (!header) return;
+  function setH() {
+    document.documentElement.style.setProperty(
+      '--header-height', header.offsetHeight + 'px'
+    );
+  }
+  setH();
+  window.addEventListener('resize', setH, { passive: true });
+})();
 
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ═══ INTRO QUESTIONS: STICKY SCROLL-PINNED SWAPPER ═══ */
+(function() {
+  var outer   = document.getElementById('intro-scroll-outer');
+  var display = document.getElementById('intro-question-display');
+  if (!outer || !display) return;
+  var dots = document.querySelectorAll('#intro-progress-dots span');
+
+  var introQuestions = [
+    "لو أنت معلم… أكيد مريت بده من قبل",
+    "كل ما تبدأ تتعلم، تلاقي أدوات جديدة ومش عارف تبدأ منين",
+    "حاسس إن الذكاء الاصطناعي مهم لكن البداية مش واضحة",
+    "المحتوى كتير لكن الطريق مش مترتب",
+    "محتاج مسار أو خريطة واحدة تختصر لك كل التشتيت ده؟"
+  ];
+  /* Marked words for red underline (by question index) */
+  var markedWords = {
+    1: 'أدوات جديدة',
+    2: 'البداية مش واضحة',
+    3: 'مش مترتب',
+    4: 'التشتيت'
+  };
+
+  var currentIdx = -1;
 
   function fireIntroFinishedOnce() {
     if (fireIntroFinishedOnce._done) return;
@@ -2806,44 +2816,48 @@ gsap.to('.header-logo-img', {
     try { document.dispatchEvent(new CustomEvent('introFinished')); } catch (e) {}
   }
 
-  if (reduced) {
-    Array.prototype.forEach.call(questions, function(q){
-      q.classList.add('iq-active','iq-drawn');
-    });
-    fireIntroFinishedOnce();
-    return;
+  function renderQuestion(idx) {
+    if (idx === currentIdx) return;
+    currentIdx = idx;
+
+    var raw = introQuestions[idx];
+    var marked = markedWords[idx];
+    var html = marked
+      ? raw.replace(marked, '<mark>' + marked + '</mark>')
+      : raw;
+
+    var qEl = display.querySelector('.q-text');
+    qEl.style.opacity = '0';
+    qEl.style.transform = 'translateY(16px)';
+    setTimeout(function() {
+      qEl.innerHTML = html;
+      qEl.style.opacity = '1';
+      qEl.style.transform = 'translateY(0)';
+    }, 180);
+
+    for (var i = 0; i < dots.length; i++) {
+      if (i === idx) dots[i].classList.add('active');
+      else dots[i].classList.remove('active');
+    }
+    if (idx === introQuestions.length - 1) fireIntroFinishedOnce();
   }
 
-  document.body.classList.remove('iq-running');
-
-  var triggered = false;
-  function revealAll() {
-    if (triggered) return;
-    triggered = true;
-    Array.prototype.forEach.call(questions, function(q, i){
-      setTimeout(function(){
-        q.classList.add('iq-active');
-        // Trigger SVG underline draw shortly after line shows
-        setTimeout(function(){ q.classList.add('iq-drawn'); }, 300);
-      }, i * 700);
-    });
-    // Fire introFinished after last question animates
-    setTimeout(fireIntroFinishedOnce, questions.length * 700 + 600);
+  function onScroll() {
+    var rect  = outer.getBoundingClientRect();
+    var total = outer.offsetHeight - window.innerHeight;
+    var scrolled = -rect.top;
+    if (scrolled < 0) scrolled = 0;
+    if (scrolled > total) scrolled = total;
+    var progress = total > 0 ? scrolled / total : 0;
+    var idx = Math.min(
+      introQuestions.length - 1,
+      Math.floor(progress * introQuestions.length)
+    );
+    renderQuestion(idx);
   }
 
-  if ('IntersectionObserver' in window) {
-    var obs = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if (entry.isIntersecting) {
-          revealAll();
-          obs.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    obs.observe(section);
-  } else {
-    revealAll();
-  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  renderQuestion(0);
 })();
 
 /* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
