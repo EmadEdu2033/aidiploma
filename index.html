@@ -328,16 +328,22 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   line-height:1.35; margin-bottom:12px; opacity:0;
 }
 .hero .en-sub {
-  font-size:clamp(16px,2.5vw,22px); color:var(--accent-blue);
+  font-size:clamp(16px,2.5vw,22px); color:#4ade80;
   font-weight:600; margin-bottom:20px; opacity:0;
 }
-.gold-divider { width:80px; height:3px; background:var(--accent-gold); margin:0 auto 28px; border-radius:2px; }
+.gold-divider { width:80px; height:3px; background:var(--accent-gold); margin:0 auto 28px; border-radius:2px; transform: scaleX(0); transform-origin: right center; }
 .hero-stats {
-  display:flex; gap:16px; justify-content:center; margin-bottom:28px; flex-wrap:wrap;
+  display:grid; grid-template-columns: repeat(3, 1fr); align-items: stretch;
+  gap:16px; justify-content:center; margin-bottom:28px; max-width: 720px;
+  margin-left:auto; margin-right:auto;
+}
+@media (max-width: 640px) {
+  .hero-stats { grid-template-columns: 1fr; }
 }
 .stat-card {
   background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px;
-  padding:20px 28px; text-align:center; flex:1; min-width:160px;
+  padding:20px 28px; text-align:center; min-width:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
   opacity:0; transition: transform 0.3s, box-shadow 0.3s;
 }
 .stat-card:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(46,134,255,0.15); }
@@ -508,10 +514,35 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 .trainer-bio-col .bio-text { font-size:14px; color:var(--soft-white); line-height:1.8; margin-bottom:12px; }
 .cred-list { list-style:none; padding:0; }
 .cred-list li {
-  font-size:13px; color:var(--soft-white); line-height:2; padding-right:20px; position:relative;
+  font-size:13px; color:var(--soft-white); line-height:2; padding-right:30px; position:relative;
+  opacity: 0; transform: translateX(30px);
+}
+.cred-list li.row-show {
+  opacity: 1; transform: translateX(0);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.cred-list li .cred-check {
+  position: absolute; right: 0; top: 6px; width: 16px; height: 16px;
+  display: inline-block; pointer-events: none;
+}
+.cred-list li .cred-check .cred-circle { stroke-dasharray: 50; stroke-dashoffset: 50; }
+.cred-list li .cred-check .cred-mark { stroke-dasharray: 22; stroke-dashoffset: 22; }
+.cred-list li.row-draw .cred-circle {
+  transition: stroke-dashoffset 0.35s cubic-bezier(0.22,1,0.36,1);
+  stroke-dashoffset: 0;
+}
+.cred-list li.row-draw .cred-mark {
+  transition: stroke-dashoffset 0.3s 0.2s cubic-bezier(0.22,1,0.36,1);
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cred-list li { opacity: 1 !important; transform: none !important; }
+  .cred-list li .cred-circle, .cred-list li .cred-mark {
+    stroke-dashoffset: 0 !important; transition: none !important;
+  }
 }
 .cred-list li::before {
-  content:'\2713'; position:absolute; right:0; color:var(--success); font-weight:900;
+  content: none;
 }
 .trainer-logos {
   display:flex; justify-content:center; align-items:center; gap:32px; margin-top:32px;
@@ -1004,8 +1035,8 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 .diploma-fit-title { opacity: 0; }
 .fit-col--yes { opacity: 0; }
 .fit-col--no  { opacity: 0; }
-.fit-col--yes .fit-item { opacity: 0; transform: translateY(16px); }
-.fit-col--no  .fit-item { opacity: 0; transform: translateY(10px); }
+.fit-col--yes .fit-item { opacity: 0; transform: translateX(30px); }
+.fit-col--no  .fit-item { opacity: 0; transform: translateX(30px); }
 
 @keyframes titleReveal {
   from { opacity: 0; transform: translateY(28px); filter: blur(4px); }
@@ -1066,25 +1097,28 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   80%      { transform: rotate(5deg); }
 }
 
-/* YES items stagger */
-.fit-col--yes.animate .fit-item:nth-child(1) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.9s  forwards; }
-.fit-col--yes.animate .fit-item:nth-child(2) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.05s forwards; }
-.fit-col--yes.animate .fit-item:nth-child(3) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.2s  forwards; }
-.fit-col--yes.animate .fit-item:nth-child(4) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.35s forwards; }
-.fit-col--yes.animate .fit-item:nth-child(5) { animation: itemRiseYes 0.5s cubic-bezier(0.22, 1, 0.36, 1) 1.5s  forwards; }
-@keyframes itemRiseYes {
-  from { opacity: 0; transform: translateY(16px); text-shadow: 0 0 0 rgba(34,197,94,0); }
-  to   { opacity: 1; transform: translateY(0); text-shadow: 0 0 0 rgba(34,197,94,0); }
-}
+/* Per-row icon-draw-then-text animation (Change 4) */
+.fit-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; }
+.fit-icon .fit-row-svg { width: 20px; height: 20px; display: block; }
+.fit-icon .fit-row-circle { stroke-dasharray: 64; stroke-dashoffset: 64; }
+.fit-icon .fit-row-mark { stroke-dasharray: 30; stroke-dashoffset: 30; }
 
-/* NO items stagger */
-.fit-col--no.animate .fit-item:nth-child(1) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.15s forwards; }
-.fit-col--no.animate .fit-item:nth-child(2) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.3s  forwards; }
-.fit-col--no.animate .fit-item:nth-child(3) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.45s forwards; }
-.fit-col--no.animate .fit-item:nth-child(4) { animation: itemSinkNo 0.45s cubic-bezier(0.22, 1, 0.36, 1) 1.6s  forwards; }
-@keyframes itemSinkNo {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+.fit-item { opacity: 0; transform: translateX(30px); }
+.fit-item .fit-text,
+.fit-item > span:last-child { display: inline-block; }
+
+.fit-item.row-draw .fit-row-circle {
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  stroke-dashoffset: 0;
+}
+.fit-item.row-draw .fit-row-mark {
+  transition: stroke-dashoffset 0.3s 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  stroke-dashoffset: 0;
+}
+.fit-item.row-show {
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Hover — YES */
@@ -1136,10 +1170,13 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   .fit-col--yes .fit-item,
   .fit-col--no .fit-item,
   .fit-col--yes .fit-col-icon svg polyline,
-  .fit-col--no .fit-col-icon svg line {
+  .fit-col--no .fit-col-icon svg line,
+  .fit-item .fit-row-circle,
+  .fit-item .fit-row-mark {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
+    transition: none !important;
     stroke-dashoffset: 0 !important;
   }
 }
@@ -1220,7 +1257,7 @@ header h2, nav h2 { text-shadow: none !important; }
 </style>
 
 <style id="pain-cards-fix">
-/* Pain-points section opaque background */
+/* Pain-points section opaque background + 3D perspective */
 #pain-points {
   background: #04091a !important;
   opacity: 1 !important;
@@ -1229,57 +1266,63 @@ header h2, nav h2 { text-shadow: none !important; }
   z-index: 2 !important;
   perspective: 1200px;
 }
-/* Base card: absolutely positioned, transitions handle 3D movement */
+#pain-points .pain-cards-col {
+  perspective: 1200px;
+}
+/* Base card — absolute, 3D stacked via data-offset */
 #pain-points .pain-card {
   position: absolute !important;
+  inset: 0;
   top: 0; left: 0; right: 0;
-  transition: transform 0.65s cubic-bezier(0.16,1,0.3,1),
-              opacity 0.5s ease,
-              box-shadow 0.5s ease !important;
-  transform-origin: center bottom;
-  will-change: transform, opacity;
-  background: rgba(15,28,75,0.97) !important;
+  background: rgba(12, 24, 68, 0.97) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
-  border-radius: 16px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  border-radius: 18px !important;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1),
+              opacity  0.55s ease,
+              box-shadow 0.55s ease !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
 }
-/* 3D stack states by offset (0 = active, +N = past, -N = upcoming) */
+/* Active card — front */
 #pain-points .pain-card[data-offset="0"] {
   transform: translateY(0) scale(1) rotateX(0deg);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  opacity: 1; z-index: 5;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
 }
+/* One card BEHIND active (next/upcoming peek) */
 #pain-points .pain-card[data-offset="1"] {
-  transform: translateY(-22px) scale(0.96) rotateX(4deg);
-  opacity: 0.72;
-  z-index: 9;
-  pointer-events: none;
+  transform: translateY(-22px) scale(0.96) rotateX(3deg);
+  opacity: 0.7; z-index: 4;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
 }
+/* Two cards behind */
 #pain-points .pain-card[data-offset="2"] {
-  transform: translateY(-42px) scale(0.92) rotateX(8deg);
-  opacity: 0.42;
-  z-index: 8;
-  pointer-events: none;
+  transform: translateY(-40px) scale(0.92) rotateX(6deg);
+  opacity: 0.45; z-index: 3;
 }
-#pain-points .pain-card[data-offset="3"],
-#pain-points .pain-card[data-offset="4"],
-#pain-points .pain-card[data-offset="5"] {
-  transform: translateY(-54px) scale(0.88) rotateX(10deg);
-  opacity: 0.18;
-  z-index: 7;
-  pointer-events: none;
+/* Three cards behind — barely visible peek */
+#pain-points .pain-card[data-offset="3"] {
+  transform: translateY(-54px) scale(0.88) rotateX(9deg);
+  opacity: 0.2; z-index: 2;
 }
-#pain-points .pain-card[data-offset="-1"],
+/* Cards already passed (below/hidden) */
+#pain-points .pain-card[data-offset="-1"] {
+  transform: translateY(80px) scale(0.94);
+  opacity: 0; z-index: 1; pointer-events: none;
+}
 #pain-points .pain-card[data-offset="-2"],
 #pain-points .pain-card[data-offset="-3"],
-#pain-points .pain-card[data-offset="-4"],
-#pain-points .pain-card[data-offset="-5"] {
-  transform: translateY(80px) scale(0.88);
-  opacity: 0;
-  z-index: 6;
-  pointer-events: none;
+#pain-points .pain-card[data-offset="-4"] {
+  transform: translateY(120px) scale(0.9);
+  opacity: 0; z-index: 0; pointer-events: none;
+}
+/* Cards too far forward in the stack — hidden */
+#pain-points .pain-card[data-offset="4"],
+#pain-points .pain-card[data-offset="5"] {
+  transform: translateY(-60px) scale(0.84) rotateX(12deg);
+  opacity: 0; z-index: 1; pointer-events: none;
 }
 #pain-points .pain-card p,
 #pain-points .pain-card span {
@@ -1309,16 +1352,11 @@ header h2, nav h2 { text-shadow: none !important; }
   from { opacity: 0; transform: translateY(16px) scale(0.85); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.hero .hero-badge  { animation: heroFadeUp 0.7s 0.05s cubic-bezier(0.16,1,0.3,1) both; }
-.hero h1           { animation: heroFadeUp 0.8s 0.15s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .en-sub      { animation: heroFadeUp 0.8s 0.30s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .gold-divider{ animation: heroScale  0.6s 0.45s ease both; transform-origin: center; }
-.hero .stat-card:nth-child(1) { animation: heroFadeUp 0.7s 0.50s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .stat-card:nth-child(2) { animation: heroFadeUp 0.7s 0.60s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .stat-card:nth-child(3) { animation: heroFadeUp 0.7s 0.70s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .date-banner { animation: heroFadeUp 0.7s 0.80s cubic-bezier(0.16,1,0.3,1) both; }
-.hero .hero-cta-row{ animation: heroFadeUp 0.7s 0.90s cubic-bezier(0.16,1,0.3,1) both; }
-#countdown-section .cd-boxes { animation: countUp 0.8s 0.95s cubic-bezier(0.16,1,0.3,1) both; }
+/* Hero entrance animations are driven by anime.js (initHeroAnimations) —
+   CSS keyframe animations intentionally disabled to avoid double-animation. */
+.hero .hero-cta-row { opacity: 0; }
+.hero .date-banner { opacity: 0; }
+#countdown-section .cd-boxes { /* entrance animation removed per spec */ }
 @media (prefers-reduced-motion: reduce) {
   .hero .hero-badge, .hero h1, .hero .en-sub, .hero .gold-divider,
   .hero .stat-card, .hero .date-banner, .hero .hero-cta-row,
@@ -1365,7 +1403,12 @@ html, body { overflow-x: hidden; }
 </style>
 
 <style id="pain-ghost-remove">
-/* Remove any decorative/ghost elements behind pain-points cards */
+/* SPEC FIX 2 — hide any ghost/decorative leftover behind pain-points cards.
+   Structural wrappers (container, sticky, layout, not-fault) are allow-listed
+   so the section itself does not collapse. */
+#pain-points > *:not([class*="card"]):not([class*="slide"]):not([class*="container"]):not([class*="sticky"]):not([class*="layout"]):not([class*="not-fault"]):not(h2):not(h3):not(p):not(.dots):not(.progress) {
+  display: none !important;
+}
 #pain-points [class*="icon-bg"],
 #pain-points [class*="bg-shape"],
 #pain-points [class*="deco"],
@@ -1375,11 +1418,30 @@ html, body { overflow-x: hidden; }
 #pain-points [class*="overlay-icon"] {
   display: none !important;
 }
+/* Hide unrelated decorative SVGs (keep close/arrow/check/card X icons) */
+#pain-points .pain-cards-col > svg:not([class*="close"]):not([class*="arrow"]) {
+  display: none !important;
+}
 /* Ensure the card column has no leftover ghost background */
+#pain-points .pain-cards-col,
+#pain-points .pain-sticky-inner,
+#pain-points .pain-sticky-wrapper,
+#pain-points .pain-layout {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 #pain-points .pain-cards-col::before,
-#pain-points .pain-cards-col::after {
+#pain-points .pain-cards-col::after,
+#pain-points .pain-sticky-inner::before,
+#pain-points .pain-sticky-inner::after {
   display: none !important;
   content: none !important;
+}
+/* Neutralize legacy .pain-card.behind opacity — past cards must be hidden */
+#pain-points .pain-card.behind {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 </style>
 
@@ -1424,14 +1486,14 @@ html, body { overflow-x: hidden; }
 #intro-question-display {
   text-align: center;
   padding: 0 clamp(16px, 5vw, 80px);
-  max-width: 900px;
+  max-width: 800px;
   width: 100%;
 }
 #intro-question-display .q-text {
   font-size: clamp(1.4rem, 3.5vw, 2.6rem);
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.7;
+  line-height: 1.5;
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
   margin: 0;
 }
@@ -1441,20 +1503,50 @@ html, body { overflow-x: hidden; }
   position: relative;
   display: inline-block;
 }
-#intro-question-display .q-text mark::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0; right: 0;
-  height: 3px;
-  background: #ef4444;
-  border-radius: 2px;
-  transform-origin: left;
-  animation: underlineDraw 0.5s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+/* Hand-drawn SVG annotations (underline / double-underline / circle) */
+.annotation-wrapper {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  background: none;
 }
-@keyframes underlineDraw {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+.annotation-wrapper .ann-svg {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+}
+.annotation-wrapper .ann-svg path {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--ann-len, 400);
+  stroke-dashoffset: var(--ann-len, 400);
+  transition: stroke-dashoffset 0.7s ease-out;
+}
+.annotation-wrapper.ann-underline .ann-svg {
+  left: -6px; right: -6px;
+  bottom: -10px;
+  width: calc(100% + 12px);
+  height: 16px;
+}
+.annotation-wrapper.ann-double .ann-svg {
+  left: -6px; right: -6px;
+  bottom: -14px;
+  width: calc(100% + 12px);
+  height: 24px;
+}
+.annotation-wrapper.ann-double .ann-svg path:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.annotation-wrapper.ann-circle .ann-svg {
+  top: -8px; left: -14px;
+  width: calc(100% + 28px);
+  height: calc(100% + 16px);
+}
+.annotation-wrapper.draw .ann-svg path {
+  stroke-dashoffset: 0;
 }
 #intro-progress-dots {
   display: flex;
@@ -1485,24 +1577,27 @@ html, body { overflow-x: hidden; }
   50%     { transform: translateX(-50%) translateY(8px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #intro-question-display .q-text mark::after { animation: none; transform: scaleX(1); }
+  .annotation-wrapper .ann-svg path { transition: none !important; stroke-dashoffset: 0 !important; }
   #intro-scroll-hint { animation: none; }
 }
 </style>
 <div id="intro-scroll-outer">
   <div id="intro-scroll-sticky">
     <div id="intro-question-display">
-      <p class="q-text">لو أنت معلم… أكيد مريت بده من قبل</p>
+      <p class="q-text" style="transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);">
+        لو أنت معلم... أكيد مريت بده من قبل
+      </p>
       <div id="intro-progress-dots">
-        <span class="active"></span><span></span><span></span><span></span><span></span>
+        <span class="active"></span>
+        <span></span><span></span><span></span><span></span>
       </div>
-    </div>
-    <div id="intro-scroll-hint" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <polyline points="7,14 12,19 17,14"/>
-      </svg>
+      <div id="intro-scroll-hint">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <polyline points="7,14 12,19 17,14"/>
+        </svg>
+      </div>
     </div>
   </div>
 </div>
@@ -1754,23 +1849,23 @@ html, body { overflow-x: hidden; }
         </div>
         <ul class="fit-list">
           <li class="fit-item fit-item--yes">
-            <span class="fit-icon fit-icon--yes">✓</span>
+            <span class="fit-icon fit-icon--yes"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><polyline class="fit-row-mark" points="8 12 11 15 16 9"/></svg></span>
             <span>معلماً يريد مواكبة التطور التكنولوجي</span>
           </li>
           <li class="fit-item fit-item--yes">
-            <span class="fit-icon fit-icon--yes">✓</span>
+            <span class="fit-icon fit-icon--yes"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><polyline class="fit-row-mark" points="8 12 11 15 16 9"/></svg></span>
             <span>تبحث عن طرق لتوفير وقت التحضير</span>
           </li>
           <li class="fit-item fit-item--yes">
-            <span class="fit-icon fit-icon--yes">✓</span>
+            <span class="fit-icon fit-icon--yes"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><polyline class="fit-row-mark" points="8 12 11 15 16 9"/></svg></span>
             <span>ترغب في تقديم تجربة تعليمية ممتعة</span>
           </li>
           <li class="fit-item fit-item--yes">
-            <span class="fit-icon fit-icon--yes">✓</span>
+            <span class="fit-icon fit-icon--yes"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><polyline class="fit-row-mark" points="8 12 11 15 16 9"/></svg></span>
             <span>تريد شهادة معتمدة تضيف لمسيرتك</span>
           </li>
           <li class="fit-item fit-item--yes">
-            <span class="fit-icon fit-icon--yes">✓</span>
+            <span class="fit-icon fit-icon--yes"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><polyline class="fit-row-mark" points="8 12 11 15 16 9"/></svg></span>
             <span>مستعداً لتعلّم مهارات جديدة ومفيدة</span>
           </li>
         </ul>
@@ -1791,19 +1886,19 @@ html, body { overflow-x: hidden; }
         </div>
         <ul class="fit-list">
           <li class="fit-item fit-item--no">
-            <span class="fit-icon fit-icon--no"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span class="fit-icon fit-icon--no"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><line class="fit-row-mark" x1="8" y1="8" x2="16" y2="16"/><line class="fit-row-mark" x1="16" y1="8" x2="8" y2="16"/></svg></span>
             <span>تبحث عن حلول سحرية بدون جهد</span>
           </li>
           <li class="fit-item fit-item--no">
-            <span class="fit-icon fit-icon--no"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span class="fit-icon fit-icon--no"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><line class="fit-row-mark" x1="8" y1="8" x2="16" y2="16"/><line class="fit-row-mark" x1="16" y1="8" x2="8" y2="16"/></svg></span>
             <span>غير مستعد لتخصيص وقت للتعلم</span>
           </li>
           <li class="fit-item fit-item--no">
-            <span class="fit-icon fit-icon--no"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span class="fit-icon fit-icon--no"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><line class="fit-row-mark" x1="8" y1="8" x2="16" y2="16"/><line class="fit-row-mark" x1="16" y1="8" x2="8" y2="16"/></svg></span>
             <span>ترفض التغيير وتفضّل الطرق التقليدية فقط</span>
           </li>
           <li class="fit-item fit-item--no">
-            <span class="fit-icon fit-icon--no"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+            <span class="fit-icon fit-icon--no"><svg class="fit-row-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="fit-row-circle" cx="12" cy="12" r="10"/><line class="fit-row-mark" x1="8" y1="8" x2="16" y2="16"/><line class="fit-row-mark" x1="16" y1="8" x2="8" y2="16"/></svg></span>
             <span>لا تعمل في مجال التعليم أو التدريب</span>
           </li>
         </ul>
@@ -1881,16 +1976,16 @@ html, body { overflow-x: hidden; }
       <div class="trainer-bio-col">
         <p class="bio-text">معلم ومدرب محترف بخبرة تتجاوز +1,200 ساعة تدريب في مجالات التعليم التفاعلي، تعليم STEAM، والذكاء الاصطناعي في التعليم. حاصل على بكالوريوس العلوم والتربية من جامعة عين شمس، ومعتمد دوليًا كـ STEM.org Certified™ Master Trainer.</p>
         <ul class="cred-list">
-          <li>مؤسس والمدير التنفيذي لـ Future Teach للتطوير المهني للمعلمين</li>
-          <li>صانع محتوى تعليمي للمعلمين ومؤسس مبادرة "خواطر معلم"</li>
-          <li>مدرب معتمد من STEM.org كـ Master Trainer</li>
-          <li>حاصل على Goodwill® Career Coach المعتمدة من ICF</li>
-          <li>Google Project Management Professional Certificate</li>
-          <li>دبلومة STEAM من Notting Hill College</li>
-          <li>معتمد من IBM في أسس الذكاء الاصطناعي للمعلمين</li>
-          <li>أكثر من 90 شهادة من Microsoft في تكنولوجيا التعليم (MIE Trainer)</li>
-          <li>متخصص في علم النفس الإيجابي — جامعة بنسلفانيا</li>
-          <li>خبرة عملية بمدارس دولية وأكاديميات متخصصة</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>مؤسس والمدير التنفيذي لـ Future Teach للتطوير المهني للمعلمين</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>صانع محتوى تعليمي للمعلمين ومؤسس مبادرة "خواطر معلم"</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>مدرب معتمد من STEM.org كـ Master Trainer</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>حاصل على Goodwill® Career Coach المعتمدة من ICF</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>Google Project Management Professional Certificate</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>دبلومة STEAM من Notting Hill College</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>معتمد من IBM في أسس الذكاء الاصطناعي للمعلمين</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>أكثر من 90 شهادة من Microsoft في تكنولوجيا التعليم (MIE Trainer)</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>متخصص في علم النفس الإيجابي — جامعة بنسلفانيا</li>
+          <li><svg class="cred-check" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle class="cred-circle" cx="12" cy="12" r="10"/><polyline class="cred-mark" points="8 12 11 15 16 9"/></svg>خبرة عملية بمدارس دولية وأكاديميات متخصصة</li>
         </ul>
       </div>
     </div>
@@ -2133,6 +2228,13 @@ html, body { overflow-x: hidden; }
   justify-content: space-between;
   gap: 12px;
 }
+@media (min-width: 1024px) {
+  #sticky-timer-bar .stb-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+}
 #sticky-timer-bar .stb-mini {
   display: flex;
   flex-direction: row;
@@ -2151,6 +2253,26 @@ html, body { overflow-x: hidden; }
   border-radius: 8px;
   padding: 4px 8px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: none !important; /* FIX A — no slide-from-right entrance */
+  transform: none !important;
+}
+#sticky-timer-bar .stb-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+  transition: background 0.3s ease;
+}
+#sticky-timer-bar.scrolling .stb-box::after {
+  background: linear-gradient(225deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
 }
 #sticky-timer-bar .stb-num {
   font-size: clamp(0.95rem, 2.5vw, 1.1rem);
@@ -2164,8 +2286,9 @@ html, body { overflow-x: hidden; }
   line-height: 1.1;
 }
 #sticky-timer-bar .stb-lbl {
-  font-size: clamp(0.55rem, 1.2vw, 0.65rem);
-  color: #8899cc;
+  font-size: clamp(9px, 1.2vw, 12px);
+  color: #ffffff;
+  font-weight: 500;
   display: block;
   margin-top: 2px;
 }
@@ -2179,11 +2302,17 @@ html, body { overflow-x: hidden; }
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  order: -1; /* In RTL, put CTA visually rightmost per spec layout */
 }
 #sticky-timer-bar .stb-meta {
-  color: #8899cc;
-  font-size: 0.78rem;
+  color: #ffffff;
+  font-size: clamp(11px, 1.5vw, 14px);
+  font-weight: 600;
   white-space: nowrap;
+}
+#sticky-timer-bar .stb-meta-before {
+  margin-left: 12px;
+  order: -1;
 }
 #sticky-timer-bar .stb-cta {
   padding: 8px 18px;
@@ -2197,7 +2326,11 @@ html, body { overflow-x: hidden; }
   text-align: center;
 }
 @media (max-width: 520px) {
-  #sticky-timer-bar .stb-meta { display: none; }
+  /* Keep the "ينتهي العرض في:" label visible in sticky bar per spec */
+  #sticky-timer-bar .stb-meta-before {
+    font-size: 10px;
+    margin-left: 6px;
+  }
 }
 </style>
 <section id="countdown-section">
@@ -2335,73 +2468,93 @@ if (hamburgerBtn) {
   draw();
 })();
 
-// ====== HERO ANIMATIONS (Anime.js) ======
+// ====== HERO ANIMATIONS (Anime.js — spec sequence) ======
 function initHeroAnimations() {
+  var easing = 'cubicBezier(0.25, 0.46, 0.45, 0.94)';
+  /* Step 1 (0ms): Main title fades in + slides up from 50px, 0.7s */
+  anime({
+    targets: '.hero h1',
+    opacity: [0, 1],
+    translateY: [50, 0],
+    duration: 700,
+    delay: 0,
+    easing: easing
+  });
+  /* Hero badge: keep prior subtle entrance */
   anime({
     targets: '.hero-badge',
     opacity: [0, 1],
     translateY: [-20, 0],
-    duration: 800,
-    delay: 100,
-    easing: 'easeOutExpo'
+    duration: 600,
+    delay: 0,
+    easing: easing
   });
-  anime({
-    targets: '.hero h1',
-    opacity: [0, 1],
-    translateY: [40, 0],
-    duration: 1000,
-    delay: 250,
-    easing: 'easeOutExpo'
-  });
+  /* Step 2 (200ms delay): English subtitle, 0.6s */
   anime({
     targets: '.hero .en-sub',
     opacity: [0, 1],
     translateY: [30, 0],
-    duration: 800,
-    delay: 400,
-    easing: 'easeOutExpo'
+    duration: 600,
+    delay: 200,
+    easing: easing
   });
+  /* Step 3 (400ms delay): Golden divider extends right → left (RTL), 0.5s */
+  anime({
+    targets: '.gold-divider',
+    scaleX: [0, 1],
+    duration: 500,
+    delay: 400,
+    easing: easing
+  });
+  /* Step 4 (600ms delay): Stats cards, 0.5s each, staggered 120ms */
   anime({
     targets: '.stat-card',
     opacity: [0, 1],
-    scale: [0.8, 1],
-    delay: anime.stagger(100, {start: 700}),
-    duration: 600,
-    easing: 'easeOutExpo'
+    translateY: [30, 0],
+    scale: [0.95, 1],
+    duration: 500,
+    delay: anime.stagger(120, { start: 600 }),
+    easing: easing
   });
+  /* Step 5 (900ms delay): Date bar fades in */
   anime({
     targets: '.date-banner',
     opacity: [0, 1],
     translateY: [20, 0],
-    duration: 800,
-    delay: 1100,
-    easing: 'easeOutExpo'
+    duration: 600,
+    delay: 900,
+    easing: easing
   });
+  /* Step 6 (1100ms delay): CTA button bounce (0.8 → 1.05 → 1) */
   anime({
     targets: '.hero-cta-row',
     opacity: [0, 1],
-    translateY: [20, 0],
-    duration: 800,
-    delay: 1300,
-    easing: 'easeOutExpo'
+    scale: [0.8, 1.05, 1],
+    duration: 700,
+    delay: 1100,
+    easing: 'easeOutBack'
   });
 
-  // Counter animation
+  /* Counter animation — easeOutQuart, 1.5s */
   document.querySelectorAll('.stat-card .num').forEach(function(el) {
     var target = parseInt(el.getAttribute('data-target'));
     var prefix = el.getAttribute('data-prefix') || '';
+    var obj = { v: 0 };
     anime({
-      targets: el,
-      innerHTML: [0, target],
+      targets: obj,
+      v: target,
       round: 1,
       duration: 1500,
-      delay: 900,
-      easing: 'easeOutExpo',
+      delay: 700,
+      easing: 'easeOutQuart',
       update: function() {
-        var val = Math.round(parseFloat(el.innerHTML));
-        if (target === 20) el.innerHTML = val + ' ساعة';
-        else if (target === 4) el.innerHTML = val + ' كورسات';
-        else el.innerHTML = prefix + val + ' أداة';
+        var val = Math.round(obj.v);
+        if (target === 30) el.innerHTML = val + (prefix || '+');
+        else el.innerHTML = String(val);
+      },
+      complete: function() {
+        if (target === 30) el.innerHTML = target + (prefix || '+');
+        else el.innerHTML = String(target);
       }
     });
   });
@@ -2484,34 +2637,42 @@ gsap.to('.header-logo-img', {
   if (!wrapper) return;
   const cards = Array.from(document.querySelectorAll('#painCardsCol .pain-card'));
   const dots  = Array.from(document.querySelectorAll('#painProgressDots .dot'));
-  const total = cards.length;
+  const totalCards = cards.length;
+  /* Set outer wrapper height = (cards + 1) × 100vh so each scroll step = 1 card,
+     with an extra window at the end so the last card can stay pinned briefly. */
+  wrapper.style.height = (totalCards + 1) * 100 + 'vh';
+
   let current = -1;
 
-  function update() {
-    const rect = wrapper.getBoundingClientRect();
-    const wH   = wrapper.offsetHeight;
-    const vH   = window.innerHeight;
-    const progress = Math.max(0, Math.min(1, -rect.top / (wH - vH)));
-    const idx = Math.min(total - 1, Math.floor(progress * total));
-
-    if (idx === current) return;
-    current = idx;
-
-    cards.forEach((card, i) => {
+  function updateDeck(activeIdx) {
+    if (activeIdx === current) return;
+    current = activeIdx;
+    cards.forEach(function(card, i) {
       card.classList.remove('show', 'behind');
-      if (i < idx)  card.classList.add('behind');
-      if (i === idx) card.classList.add('show');
-      /* offset semantics: +N = past/stacked behind, -N = upcoming/hidden below, 0 = active */
-      var offset = idx - i;
-      if (offset > 5)  offset = 5;
-      if (offset < -5) offset = -5;
+      if (i < activeIdx)   card.classList.add('behind');
+      if (i === activeIdx) card.classList.add('show');
+      /* offset = i - activeIdx: +N upcoming-behind (peek), 0 active, -N past-hidden */
+      var offset = i - activeIdx;
+      /* Clamp between -4 and 5 per spec */
+      offset = Math.max(-4, Math.min(5, offset));
       card.setAttribute('data-offset', String(offset));
     });
-    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === activeIdx); });
   }
 
-  window.addEventListener('scroll', update, { passive: true });
-  update();
+  window.addEventListener('scroll', function() {
+    var rect    = wrapper.getBoundingClientRect();
+    var total   = wrapper.offsetHeight - window.innerHeight;
+    var scrolled = Math.max(0, Math.min(total, -rect.top));
+    var progress = total > 0 ? scrolled / total : 0;
+    var activeIdx = Math.min(
+      totalCards - 1,
+      Math.floor(progress * totalCards)
+    );
+    updateDeck(activeIdx);
+  }, { passive: true });
+
+  updateDeck(0);
 })();
 </script>
 
@@ -2670,6 +2831,39 @@ gsap.to('.header-logo-img', {
     }
   }, { passive: true });
 })();
+
+/* CHANGE 6D — Sticky bar glass gleam shifts on scroll (300ms class) */
+(function(){
+  var bar = document.getElementById('sticky-timer-bar');
+  if (!bar) return;
+  var t = null;
+  window.addEventListener('scroll', function() {
+    bar.classList.add('scrolling');
+    if (t) clearTimeout(t);
+    t = setTimeout(function() { bar.classList.remove('scrolling'); }, 300);
+  }, { passive: true });
+})();
+
+/* CHANGE 5 — Trainer cred-list: draw check icon, then slide text in */
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var list = document.querySelector('#trainer .cred-list');
+  if (!list) return;
+  var items = list.querySelectorAll('li');
+  if (!items.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      items.forEach(function(li, i) {
+        setTimeout(function() { li.classList.add('row-draw'); }, i * 160);
+        /* icon 0.35s draw + 0.2s delay ≈ 550ms, then text reveal */
+        setTimeout(function() { li.classList.add('row-show'); }, i * 160 + 600);
+      });
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.15 });
+  observer.observe(list);
+})();
 </script>
 
 <script>
@@ -2685,6 +2879,16 @@ gsap.to('.header-logo-img', {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate');
+          /* Per-row icon-draw then text reveal (Change 4) */
+          if (entry.target.classList.contains('fit-col--yes') ||
+              entry.target.classList.contains('fit-col--no')) {
+            var rows = entry.target.querySelectorAll('.fit-item');
+            rows.forEach(function(row, i) {
+              setTimeout(function() { row.classList.add('row-draw'); }, i * 180);
+              /* Icon draws 0.4s + 0.3s = 0.7s, then 150ms delay → ~850ms */
+              setTimeout(function() { row.classList.add('row-show'); }, i * 180 + 850);
+            });
+          }
           observer.unobserve(entry.target);
         }
       });
@@ -2699,6 +2903,7 @@ gsap.to('.header-logo-img', {
 <div id="sticky-timer-bar">
   <div class="stb-inner">
     <div class="stb-mini" id="stb-mini">
+      <span class="stb-meta stb-meta-before">ينتهي العرض في:</span>
       <div class="stb-box"><span class="stb-num" id="stb-days">00</span><span class="stb-lbl">أيام</span></div>
       <span class="stb-sep">:</span>
       <div class="stb-box"><span class="stb-num" id="stb-hours">00</span><span class="stb-lbl">ساعات</span></div>
@@ -2708,7 +2913,6 @@ gsap.to('.header-logo-img', {
       <div class="stb-box"><span class="stb-num" id="stb-secs">00</span><span class="stb-lbl">ثواني</span></div>
     </div>
     <div class="stb-right">
-      <span class="stb-meta">ينتهي العرض في:</span>
       <a href="#pricing" class="btn-primary stb-cta">سجّل الآن ←</a>
     </div>
   </div>
@@ -2790,23 +2994,46 @@ gsap.to('.header-logo-img', {
 (function() {
   var outer   = document.getElementById('intro-scroll-outer');
   var display = document.getElementById('intro-question-display');
+  var dots    = document.querySelectorAll('#intro-progress-dots span');
   if (!outer || !display) return;
-  var dots = document.querySelectorAll('#intro-progress-dots span');
 
   var introQuestions = [
-    "لو أنت معلم… أكيد مريت بده من قبل",
+    "لو أنت معلم... أكيد مريت بده من قبل",
     "كل ما تبدأ تتعلم، تلاقي أدوات جديدة ومش عارف تبدأ منين",
     "حاسس إن الذكاء الاصطناعي مهم لكن البداية مش واضحة",
     "المحتوى كتير لكن الطريق مش مترتب",
     "محتاج مسار أو خريطة واحدة تختصر لك كل التشتيت ده؟"
   ];
-  /* Marked words for red underline (by question index) */
-  var markedWords = {
-    1: 'أدوات جديدة',
-    2: 'البداية مش واضحة',
-    3: 'مش مترتب',
-    4: 'التشتيت'
+  /* Hand-drawn SVG annotations per question idx */
+  var annotations = {
+    1: { type: 'underline',  word: 'تبدأ منين' },
+    2: { type: 'circle',     word: 'مش واضحة' },
+    3: { type: 'double',     word: 'مش مترتب' },
+    4: { type: 'circle',     word: 'التشتيت' }
   };
+
+  function buildAnnotationSVG(type) {
+    if (type === 'underline') {
+      /* slightly wavy hand-drawn underline */
+      var d = 'M4 8 Q 30 4, 60 9 T 120 8 T 180 9 T 236 7';
+      return '<svg class="ann-svg" viewBox="0 0 240 16" preserveAspectRatio="none">'
+           + '<path d="' + d + '" style="--ann-len:260"/></svg>';
+    }
+    if (type === 'double') {
+      var d1 = 'M4 7 Q 34 3, 70 8 T 140 7 T 210 8 T 236 6';
+      var d2 = 'M8 16 Q 42 12, 78 17 T 150 16 T 220 17 T 232 15';
+      return '<svg class="ann-svg" viewBox="0 0 240 24" preserveAspectRatio="none">'
+           + '<path d="' + d1 + '" style="--ann-len:260"/>'
+           + '<path d="' + d2 + '" style="--ann-len:250"/></svg>';
+    }
+    if (type === 'circle') {
+      /* imperfect oval that leaves a small gap at the end, drawn clockwise */
+      var d = 'M 140 20 C 220 18, 245 44, 238 76 C 232 108, 190 128, 128 130 C 66 132, 20 112, 14 78 C 10 44, 44 22, 104 18 C 114 17, 124 18, 132 19';
+      return '<svg class="ann-svg" viewBox="0 0 250 150" preserveAspectRatio="none">'
+           + '<path d="' + d + '" style="--ann-len:560"/></svg>';
+    }
+    return '';
+  }
 
   var currentIdx = -1;
 
@@ -2820,12 +3047,20 @@ gsap.to('.header-logo-img', {
     if (idx === currentIdx) return;
     currentIdx = idx;
 
+    /* Build text with optional hand-drawn SVG annotation wrapper */
     var raw = introQuestions[idx];
-    var marked = markedWords[idx];
-    var html = marked
-      ? raw.replace(marked, '<mark>' + marked + '</mark>')
-      : raw;
+    var ann = annotations[idx];
+    var html = raw;
+    if (ann && raw.indexOf(ann.word) !== -1) {
+      var wrapClass = 'annotation-wrapper ann-' + ann.type;
+      var svg = buildAnnotationSVG(ann.type);
+      html = raw.replace(
+        ann.word,
+        '<span class="' + wrapClass + '">' + ann.word + svg + '</span>'
+      );
+    }
 
+    /* Swap with fade transition — sentence appears FIRST */
     var qEl = display.querySelector('.q-text');
     qEl.style.opacity = '0';
     qEl.style.transform = 'translateY(16px)';
@@ -2833,30 +3068,43 @@ gsap.to('.header-logo-img', {
       qEl.innerHTML = html;
       qEl.style.opacity = '1';
       qEl.style.transform = 'translateY(0)';
-    }, 180);
+      /* Trigger hand-drawn annotation after sentence appears (400ms delay) */
+      var wrap = qEl.querySelector('.annotation-wrapper');
+      if (wrap) {
+        /* Reset stroke-dashoffset before re-animating */
+        wrap.classList.remove('draw');
+        // Force reflow so transition restarts
+        void wrap.offsetWidth;
+        setTimeout(function() {
+          wrap.classList.add('draw');
+        }, 400);
+      }
+    }, 200);
 
-    for (var i = 0; i < dots.length; i++) {
-      if (i === idx) dots[i].classList.add('active');
-      else dots[i].classList.remove('active');
-    }
+    /* Update dots */
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === idx);
+    });
+
     if (idx === introQuestions.length - 1) fireIntroFinishedOnce();
   }
 
-  function onScroll() {
-    var rect  = outer.getBoundingClientRect();
-    var total = outer.offsetHeight - window.innerHeight;
+  window.addEventListener('scroll', function() {
+    var rect   = outer.getBoundingClientRect();
+    var total  = outer.offsetHeight - window.innerHeight;
     var scrolled = -rect.top;
     if (scrolled < 0) scrolled = 0;
     if (scrolled > total) scrolled = total;
-    var progress = total > 0 ? scrolled / total : 0;
+
+    var progress = total > 0 ? scrolled / total : 0; /* 0 → 1 */
     var idx = Math.min(
       introQuestions.length - 1,
       Math.floor(progress * introQuestions.length)
     );
     renderQuestion(idx);
-  }
+  }, { passive: true });
 
-  window.addEventListener('scroll', onScroll, { passive: true });
+  /* Initial render */
   renderQuestion(0);
 })();
 
