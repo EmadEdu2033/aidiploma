@@ -1220,7 +1220,7 @@ header h2, nav h2 { text-shadow: none !important; }
 </style>
 
 <style id="pain-cards-fix">
-/* Pain-points section opaque background */
+/* Pain-points section opaque background + 3D perspective */
 #pain-points {
   background: #04091a !important;
   opacity: 1 !important;
@@ -1229,57 +1229,63 @@ header h2, nav h2 { text-shadow: none !important; }
   z-index: 2 !important;
   perspective: 1200px;
 }
-/* Base card: absolutely positioned, transitions handle 3D movement */
+#pain-points .pain-cards-col {
+  perspective: 1200px;
+}
+/* Base card — absolute, 3D stacked via data-offset */
 #pain-points .pain-card {
   position: absolute !important;
+  inset: 0;
   top: 0; left: 0; right: 0;
-  transition: transform 0.65s cubic-bezier(0.16,1,0.3,1),
-              opacity 0.5s ease,
-              box-shadow 0.5s ease !important;
-  transform-origin: center bottom;
-  will-change: transform, opacity;
-  background: rgba(15,28,75,0.97) !important;
+  background: rgba(12, 24, 68, 0.97) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
-  border-radius: 16px !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  border-radius: 18px !important;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1),
+              opacity  0.55s ease,
+              box-shadow 0.55s ease !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
 }
-/* 3D stack states by offset (0 = active, +N = past, -N = upcoming) */
+/* Active card — front */
 #pain-points .pain-card[data-offset="0"] {
   transform: translateY(0) scale(1) rotateX(0deg);
-  opacity: 1;
-  z-index: 10;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  opacity: 1; z-index: 5;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
 }
+/* One card BEHIND active (next/upcoming peek) */
 #pain-points .pain-card[data-offset="1"] {
-  transform: translateY(-22px) scale(0.96) rotateX(4deg);
-  opacity: 0.72;
-  z-index: 9;
-  pointer-events: none;
+  transform: translateY(-22px) scale(0.96) rotateX(3deg);
+  opacity: 0.7; z-index: 4;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
 }
+/* Two cards behind */
 #pain-points .pain-card[data-offset="2"] {
-  transform: translateY(-42px) scale(0.92) rotateX(8deg);
-  opacity: 0.42;
-  z-index: 8;
-  pointer-events: none;
+  transform: translateY(-40px) scale(0.92) rotateX(6deg);
+  opacity: 0.45; z-index: 3;
 }
-#pain-points .pain-card[data-offset="3"],
-#pain-points .pain-card[data-offset="4"],
-#pain-points .pain-card[data-offset="5"] {
-  transform: translateY(-54px) scale(0.88) rotateX(10deg);
-  opacity: 0.18;
-  z-index: 7;
-  pointer-events: none;
+/* Three cards behind — barely visible peek */
+#pain-points .pain-card[data-offset="3"] {
+  transform: translateY(-54px) scale(0.88) rotateX(9deg);
+  opacity: 0.2; z-index: 2;
 }
-#pain-points .pain-card[data-offset="-1"],
+/* Cards already passed (below/hidden) */
+#pain-points .pain-card[data-offset="-1"] {
+  transform: translateY(80px) scale(0.94);
+  opacity: 0; z-index: 1; pointer-events: none;
+}
 #pain-points .pain-card[data-offset="-2"],
 #pain-points .pain-card[data-offset="-3"],
-#pain-points .pain-card[data-offset="-4"],
-#pain-points .pain-card[data-offset="-5"] {
-  transform: translateY(80px) scale(0.88);
-  opacity: 0;
-  z-index: 6;
-  pointer-events: none;
+#pain-points .pain-card[data-offset="-4"] {
+  transform: translateY(120px) scale(0.9);
+  opacity: 0; z-index: 0; pointer-events: none;
+}
+/* Cards too far forward in the stack — hidden */
+#pain-points .pain-card[data-offset="4"],
+#pain-points .pain-card[data-offset="5"] {
+  transform: translateY(-60px) scale(0.84) rotateX(12deg);
+  opacity: 0; z-index: 1; pointer-events: none;
 }
 #pain-points .pain-card p,
 #pain-points .pain-card span {
@@ -1365,7 +1371,12 @@ html, body { overflow-x: hidden; }
 </style>
 
 <style id="pain-ghost-remove">
-/* Remove any decorative/ghost elements behind pain-points cards */
+/* SPEC FIX 2 — hide any ghost/decorative leftover behind pain-points cards.
+   Structural wrappers (container, sticky, layout, not-fault) are allow-listed
+   so the section itself does not collapse. */
+#pain-points > *:not([class*="card"]):not([class*="slide"]):not([class*="container"]):not([class*="sticky"]):not([class*="layout"]):not([class*="not-fault"]):not(h2):not(h3):not(p):not(.dots):not(.progress) {
+  display: none !important;
+}
 #pain-points [class*="icon-bg"],
 #pain-points [class*="bg-shape"],
 #pain-points [class*="deco"],
@@ -1373,6 +1384,10 @@ html, body { overflow-x: hidden; }
 #pain-points [class*="placeholder"],
 #pain-points [class*="pattern"],
 #pain-points [class*="overlay-icon"] {
+  display: none !important;
+}
+/* Hide unrelated decorative SVGs (keep close/arrow/check/card X icons) */
+#pain-points .pain-cards-col > svg:not([class*="close"]):not([class*="arrow"]) {
   display: none !important;
 }
 /* Ensure the card column has no leftover ghost background */
@@ -1424,14 +1439,14 @@ html, body { overflow-x: hidden; }
 #intro-question-display {
   text-align: center;
   padding: 0 clamp(16px, 5vw, 80px);
-  max-width: 900px;
+  max-width: 800px;
   width: 100%;
 }
 #intro-question-display .q-text {
   font-size: clamp(1.4rem, 3.5vw, 2.6rem);
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.7;
+  line-height: 1.5;
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
   margin: 0;
 }
@@ -1492,17 +1507,20 @@ html, body { overflow-x: hidden; }
 <div id="intro-scroll-outer">
   <div id="intro-scroll-sticky">
     <div id="intro-question-display">
-      <p class="q-text">لو أنت معلم… أكيد مريت بده من قبل</p>
+      <p class="q-text" style="transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);">
+        لو أنت معلم... أكيد مريت بده من قبل
+      </p>
       <div id="intro-progress-dots">
-        <span class="active"></span><span></span><span></span><span></span><span></span>
+        <span class="active"></span>
+        <span></span><span></span><span></span><span></span>
       </div>
-    </div>
-    <div id="intro-scroll-hint" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <polyline points="7,14 12,19 17,14"/>
-      </svg>
+      <div id="intro-scroll-hint">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <polyline points="7,14 12,19 17,14"/>
+        </svg>
+      </div>
     </div>
   </div>
 </div>
@@ -2484,34 +2502,42 @@ gsap.to('.header-logo-img', {
   if (!wrapper) return;
   const cards = Array.from(document.querySelectorAll('#painCardsCol .pain-card'));
   const dots  = Array.from(document.querySelectorAll('#painProgressDots .dot'));
-  const total = cards.length;
+  const totalCards = cards.length;
+  /* Set outer wrapper height = (cards + 1) × 100vh so each scroll step = 1 card,
+     with an extra window at the end so the last card can stay pinned briefly. */
+  wrapper.style.height = (totalCards + 1) * 100 + 'vh';
+
   let current = -1;
 
-  function update() {
-    const rect = wrapper.getBoundingClientRect();
-    const wH   = wrapper.offsetHeight;
-    const vH   = window.innerHeight;
-    const progress = Math.max(0, Math.min(1, -rect.top / (wH - vH)));
-    const idx = Math.min(total - 1, Math.floor(progress * total));
-
-    if (idx === current) return;
-    current = idx;
-
-    cards.forEach((card, i) => {
+  function updateDeck(activeIdx) {
+    if (activeIdx === current) return;
+    current = activeIdx;
+    cards.forEach(function(card, i) {
       card.classList.remove('show', 'behind');
-      if (i < idx)  card.classList.add('behind');
-      if (i === idx) card.classList.add('show');
-      /* offset semantics: +N = past/stacked behind, -N = upcoming/hidden below, 0 = active */
-      var offset = idx - i;
-      if (offset > 5)  offset = 5;
-      if (offset < -5) offset = -5;
+      if (i < activeIdx)   card.classList.add('behind');
+      if (i === activeIdx) card.classList.add('show');
+      /* offset = i - activeIdx: +N upcoming-behind (peek), 0 active, -N past-hidden */
+      var offset = i - activeIdx;
+      /* Clamp between -4 and 5 per spec */
+      offset = Math.max(-4, Math.min(5, offset));
       card.setAttribute('data-offset', String(offset));
     });
-    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === activeIdx); });
   }
 
-  window.addEventListener('scroll', update, { passive: true });
-  update();
+  window.addEventListener('scroll', function() {
+    var rect    = wrapper.getBoundingClientRect();
+    var total   = wrapper.offsetHeight - window.innerHeight;
+    var scrolled = Math.max(0, Math.min(total, -rect.top));
+    var progress = total > 0 ? scrolled / total : 0;
+    var activeIdx = Math.min(
+      totalCards - 1,
+      Math.floor(progress * totalCards)
+    );
+    updateDeck(activeIdx);
+  }, { passive: true });
+
+  updateDeck(0);
 })();
 </script>
 
@@ -2790,20 +2816,20 @@ gsap.to('.header-logo-img', {
 (function() {
   var outer   = document.getElementById('intro-scroll-outer');
   var display = document.getElementById('intro-question-display');
+  var dots    = document.querySelectorAll('#intro-progress-dots span');
   if (!outer || !display) return;
-  var dots = document.querySelectorAll('#intro-progress-dots span');
 
   var introQuestions = [
-    "لو أنت معلم… أكيد مريت بده من قبل",
+    "لو أنت معلم... أكيد مريت بده من قبل",
     "كل ما تبدأ تتعلم، تلاقي أدوات جديدة ومش عارف تبدأ منين",
     "حاسس إن الذكاء الاصطناعي مهم لكن البداية مش واضحة",
     "المحتوى كتير لكن الطريق مش مترتب",
     "محتاج مسار أو خريطة واحدة تختصر لك كل التشتيت ده؟"
   ];
-  /* Marked words for red underline (by question index) */
+  /* Marked words per question index for red underline */
   var markedWords = {
     1: 'أدوات جديدة',
-    2: 'البداية مش واضحة',
+    2: 'مش واضحة',
     3: 'مش مترتب',
     4: 'التشتيت'
   };
@@ -2820,12 +2846,14 @@ gsap.to('.header-logo-img', {
     if (idx === currentIdx) return;
     currentIdx = idx;
 
+    /* Build text with optional mark */
     var raw = introQuestions[idx];
     var marked = markedWords[idx];
     var html = marked
       ? raw.replace(marked, '<mark>' + marked + '</mark>')
       : raw;
 
+    /* Swap with fade transition */
     var qEl = display.querySelector('.q-text');
     qEl.style.opacity = '0';
     qEl.style.transform = 'translateY(16px)';
@@ -2833,30 +2861,32 @@ gsap.to('.header-logo-img', {
       qEl.innerHTML = html;
       qEl.style.opacity = '1';
       qEl.style.transform = 'translateY(0)';
-    }, 180);
+    }, 200);
 
-    for (var i = 0; i < dots.length; i++) {
-      if (i === idx) dots[i].classList.add('active');
-      else dots[i].classList.remove('active');
-    }
+    /* Update dots */
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === idx);
+    });
+
     if (idx === introQuestions.length - 1) fireIntroFinishedOnce();
   }
 
-  function onScroll() {
-    var rect  = outer.getBoundingClientRect();
-    var total = outer.offsetHeight - window.innerHeight;
+  window.addEventListener('scroll', function() {
+    var rect   = outer.getBoundingClientRect();
+    var total  = outer.offsetHeight - window.innerHeight;
     var scrolled = -rect.top;
     if (scrolled < 0) scrolled = 0;
     if (scrolled > total) scrolled = total;
-    var progress = total > 0 ? scrolled / total : 0;
+
+    var progress = total > 0 ? scrolled / total : 0; /* 0 → 1 */
     var idx = Math.min(
       introQuestions.length - 1,
       Math.floor(progress * introQuestions.length)
     );
     renderQuestion(idx);
-  }
+  }, { passive: true });
 
-  window.addEventListener('scroll', onScroll, { passive: true });
+  /* Initial render */
   renderQuestion(0);
 })();
 
