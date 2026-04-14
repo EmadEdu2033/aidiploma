@@ -769,6 +769,7 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   display: flex;
   align-items: center;
   overflow: hidden;
+  transform-style: preserve-3d;
 }
 .pain-layout {
   display: grid;
@@ -1268,6 +1269,7 @@ header h2, nav h2 { text-shadow: none !important; }
 }
 #pain-points .pain-cards-col {
   perspective: 1200px;
+  transform-style: preserve-3d;
 }
 /* Base card — absolute, 3D stacked via data-offset */
 #pain-points .pain-card {
@@ -1611,8 +1613,8 @@ html, body { overflow-x: hidden; }
     </div>
   </div>
 
-  <div class="pain-sticky-wrapper" id="painStickyWrapper">
-    <div class="pain-sticky-inner" id="painStickyInner">
+  <div class="pain-sticky-wrapper" id="pain-cards-section">
+    <div class="pain-sticky-inner pain-cards-inner" id="painStickyInner">
       <div class="pain-layout">
         <div class="pain-cards-col" id="painCardsCol">
           <div class="pain-card" data-card-idx="0">
@@ -2200,6 +2202,31 @@ html, body { overflow-x: hidden; }
   100% { left: 120%; }
 }
 
+/* ═══ COUNTDOWN BOX GLASS EFFECT (body section only) ═══ */
+.countdown-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+.countdown-box::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+body.is-scrolling .countdown-box::after {
+  opacity: 0.6;
+}
+
 /* ═══ STICKY TIMER BAR ═══ */
 #sticky-timer-bar {
   position: fixed;
@@ -2261,18 +2288,6 @@ html, body { overflow-x: hidden; }
   justify-content: center;
   animation: none !important; /* FIX A — no slide-from-right entrance */
   transform: none !important;
-}
-#sticky-timer-bar .stb-box::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
-  transition: background 0.3s ease;
-}
-#sticky-timer-bar.scrolling .stb-box::after {
-  background: linear-gradient(225deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
 }
 #sticky-timer-bar .stb-num {
   font-size: clamp(0.95rem, 2.5vw, 1.1rem);
@@ -2337,10 +2352,10 @@ html, body { overflow-x: hidden; }
   <span class="cd-label">عرض محدود — ينتهي قريباً</span>
   <h2 class="cd-heading">السعر الحالي ينتهي خلال</h2>
   <div class="cd-boxes" id="cd-boxes">
-    <div class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></div>
-    <div class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></div>
-    <div class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></div>
-    <div class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></div>
+    <div class="cd-box countdown-box"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">أيام</span></div>
+    <div class="cd-box countdown-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">ساعات</span></div>
+    <div class="cd-box countdown-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">دقائق</span></div>
+    <div class="cd-box countdown-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">ثواني</span></div>
   </div>
   <div class="cd-expired" id="cd-expired" style="display:none;">انتهى العرض</div>
   <a href="#pricing" class="btn-primary cd-cta">سجّل الآن ←</a>
@@ -2632,47 +2647,60 @@ gsap.to('.header-logo-img', {
 });
 </script>
 <script>
+/* Pain Points — GSAP ScrollTrigger 3D card stacking */
 (function(){
-  const wrapper = document.getElementById('painStickyWrapper');
-  if (!wrapper) return;
-  const cards = Array.from(document.querySelectorAll('#painCardsCol .pain-card'));
-  const dots  = Array.from(document.querySelectorAll('#painProgressDots .dot'));
-  const totalCards = cards.length;
-  /* Set outer wrapper height = (cards + 1) × 100vh so each scroll step = 1 card,
-     with an extra window at the end so the last card can stay pinned briefly. */
-  wrapper.style.height = (totalCards + 1) * 100 + 'vh';
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  var section = document.getElementById('pain-cards-section');
+  if (!section) return;
+  var cards = gsap.utils.toArray('#painCardsCol .pain-card');
+  if (!cards.length) return;
+  var numCards = cards.length;
+  var cardScrollPx = 120; /* px of scroll per card */
 
-  let current = -1;
+  /* Set section height so each card gets cardScrollPx of scroll travel */
+  section.style.height = 'calc(100vh + ' + (numCards * cardScrollPx) + 'px)';
 
-  function updateDeck(activeIdx) {
-    if (activeIdx === current) return;
-    current = activeIdx;
-    cards.forEach(function(card, i) {
-      card.classList.remove('show', 'behind');
-      if (i < activeIdx)   card.classList.add('behind');
-      if (i === activeIdx) card.classList.add('show');
-      /* offset = i - activeIdx: +N upcoming-behind (peek), 0 active, -N past-hidden */
-      var offset = i - activeIdx;
-      /* Clamp between -4 and 5 per spec */
-      offset = Math.max(-4, Math.min(5, offset));
-      card.setAttribute('data-offset', String(offset));
+  /* Initial state — all cards hidden below */
+  gsap.set(cards, { y: 100, opacity: 0, scale: 0.97 });
+
+  /* Pin the inner container while outer section scrolls */
+  ScrollTrigger.create({
+    trigger: '#pain-cards-section',
+    start: 'top top',
+    end: 'bottom bottom',
+    pin: '.pain-cards-inner'
+  });
+
+  /* Animate each card in with 3D stacking effect */
+  cards.forEach(function(card, i) {
+    ScrollTrigger.create({
+      trigger: '#pain-cards-section',
+      start: 'top+=' + (i * cardScrollPx) + 'px top',
+      end:   'top+=' + ((i + 1) * cardScrollPx) + 'px top',
+      scrub: 0.5,
+      onEnter: function() {
+        /* Bring this card in from below */
+        gsap.fromTo(card,
+          { y: 80, opacity: 0, scale: 0.97 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: 'power2.out' }
+        );
+        /* Push previous cards up and back */
+        cards.slice(0, i).forEach(function(prev, j) {
+          var depth = i - j;
+          gsap.to(prev, {
+            y: -(depth * 20),
+            scale: 1 - (depth * 0.04),
+            opacity: Math.max(0.3, 1 - (depth * 0.15)),
+            duration: 0.4
+          });
+        });
+        /* Update progress dots */
+        document.querySelectorAll('#painProgressDots .dot').forEach(function(d, di) {
+          d.classList.toggle('active', di === i);
+        });
+      }
     });
-    dots.forEach(function(d, i) { d.classList.toggle('active', i === activeIdx); });
-  }
-
-  window.addEventListener('scroll', function() {
-    var rect    = wrapper.getBoundingClientRect();
-    var total   = wrapper.offsetHeight - window.innerHeight;
-    var scrolled = Math.max(0, Math.min(total, -rect.top));
-    var progress = total > 0 ? scrolled / total : 0;
-    var activeIdx = Math.min(
-      totalCards - 1,
-      Math.floor(progress * totalCards)
-    );
-    updateDeck(activeIdx);
-  }, { passive: true });
-
-  updateDeck(0);
+  });
 })();
 </script>
 
@@ -2789,7 +2817,7 @@ gsap.to('.header-logo-img', {
 
 <!-- WhatsApp floating button -->
 <a href="https://wa.me/201508219595" target="_blank" id="wa-float-btn"
-   style="position:fixed; bottom:80px; right:16px; z-index:998;
+   style="position:fixed; bottom:84px; right:16px; z-index:999;
           background:#25D366; border-radius:50%; width:56px; height:56px;
           display:flex; align-items:center; justify-content:center;
           box-shadow:0 4px 16px rgba(37,211,102,0.5); text-decoration:none;">
@@ -2841,6 +2869,16 @@ gsap.to('.header-logo-img', {
     bar.classList.add('scrolling');
     if (t) clearTimeout(t);
     t = setTimeout(function() { bar.classList.remove('scrolling'); }, 300);
+  }, { passive: true });
+})();
+
+/* Countdown box shimmer — add/remove is-scrolling on body (200ms timeout) */
+(function(){
+  var tBody = null;
+  window.addEventListener('scroll', function() {
+    document.body.classList.add('is-scrolling');
+    if (tBody) clearTimeout(tBody);
+    tBody = setTimeout(function() { document.body.classList.remove('is-scrolling'); }, 200);
   }, { passive: true });
 })();
 
