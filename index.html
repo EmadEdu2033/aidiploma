@@ -1213,6 +1213,44 @@ header h2, nav h2 { text-shadow: none !important; }
 }
 </style>
 
+<style id="pain-cards-fix">
+/* Force pain-points section fully opaque */
+#pain-points {
+  background: #04091a !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+/* Only the active card renders — inactive cards are removed from layout
+   so text can never overlap. .show keeps its transform/opacity transition. */
+#pain-points .pain-card:not(.show) {
+  display: none !important;
+}
+#pain-points .pain-card.show {
+  background: rgba(15, 28, 75, 0.98) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  opacity: 1 !important;
+  color: #f1f5f9 !important;
+  position: absolute !important;
+}
+#pain-points .pain-card p,
+#pain-points .pain-card span {
+  color: #e2e8f0 !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+#pain-points .pain-card .pain-x-icon {
+  color: #e63946 !important;
+  -webkit-text-fill-color: #e63946 !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -2814,37 +2852,78 @@ gsap.to('.header-logo-img', {
 
 /* ═══ LIVE ENROLLMENT POPUPS ═══ */
 (function(){
+  // Build a flag SVG via createElementNS (avoids innerHTML/textContent escaping issues)
+  function buildFlag(country) {
+    var NS = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs) {
+      var n = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach(function(k){ n.setAttribute(k, attrs[k]); });
+      return n;
+    }
+    var svg = el('svg', {viewBox:'0 0 26 18', width:'26', height:'18'});
+    svg.style.cssText = 'display:block;border-radius:2px;overflow:hidden;';
+
+    function stripes(list){ list.forEach(function(s){ svg.appendChild(el('rect',{x:0,y:s.y,width:26,height:s.h,fill:s.fill})); }); }
+
+    switch(country) {
+      case 'EG':
+        stripes([{y:0,h:6,fill:'#ce1126'},{y:6,h:6,fill:'#ffffff'},{y:12,h:6,fill:'#000000'}]);
+        svg.appendChild(el('polygon',{points:'13,7 13.8,9.4 16.2,9.4 14.3,10.8 15,13.2 13,11.8 11,13.2 11.7,10.8 9.8,9.4 12.2,9.4',fill:'#c8a000'}));
+        break;
+      case 'SA':
+        svg.appendChild(el('rect',{x:0,y:0,width:26,height:18,fill:'#006c35'}));
+        svg.appendChild(el('rect',{x:4,y:8,width:14,height:2,fill:'#ffffff',rx:1}));
+        svg.appendChild(el('rect',{x:16,y:4,width:2,height:10,fill:'#ffffff',rx:1}));
+        break;
+      case 'AE':
+        stripes([{y:0,h:6,fill:'#00732f'},{y:6,h:6,fill:'#ffffff'},{y:12,h:6,fill:'#000000'}]);
+        svg.appendChild(el('rect',{x:0,y:0,width:6,height:18,fill:'#dc143c'}));
+        break;
+      case 'QA':
+        svg.appendChild(el('rect',{x:0,y:0,width:26,height:18,fill:'#8d1b3d'}));
+        svg.appendChild(el('rect',{x:0,y:0,width:7,height:18,fill:'#ffffff'}));
+        break;
+      case 'OM':
+        stripes([{y:0,h:6,fill:'#ffffff'},{y:6,h:6,fill:'#dc143c'},{y:12,h:6,fill:'#008000'}]);
+        svg.appendChild(el('rect',{x:0,y:0,width:6,height:18,fill:'#dc143c'}));
+        break;
+      case 'JO':
+        stripes([{y:0,h:6,fill:'#000000'},{y:6,h:6,fill:'#ffffff'},{y:12,h:6,fill:'#007a3d'}]);
+        svg.appendChild(el('polygon',{points:'0,0 10,9 0,18',fill:'#ce1126'}));
+        svg.appendChild(el('polygon',{points:'4,9 4.6,7.2 6.4,7.2 5,8.3 5.5,10.1 4,9.1 2.5,10.1 3,8.3 1.6,7.2 3.4,7.2',fill:'#ffffff'}));
+        break;
+      case 'SY':
+        stripes([{y:0,h:6,fill:'#ce1126'},{y:6,h:6,fill:'#ffffff'},{y:12,h:6,fill:'#000000'}]);
+        svg.appendChild(el('polygon',{points:'8,8.5 8.6,10.4 10.7,10.4 9,11.6 9.8,13.5 8,12.3 6.2,13.5 7,11.6 5.3,10.4 7.4,10.4',fill:'#007a3d'}));
+        svg.appendChild(el('polygon',{points:'18,8.5 18.6,10.4 20.7,10.4 19,11.6 19.8,13.5 18,12.3 16.2,13.5 17,11.6 15.3,10.4 17.4,10.4',fill:'#007a3d'}));
+        break;
+      case 'LB':
+        stripes([{y:0,h:4.5,fill:'#ee161f'},{y:4.5,h:9,fill:'#ffffff'},{y:13.5,h:4.5,fill:'#ee161f'}]);
+        svg.appendChild(el('circle',{cx:13,cy:9,r:3,fill:'#00a651'}));
+        break;
+      default:
+        stripes([{y:0,h:6,fill:'#ce1126'},{y:6,h:6,fill:'#ffffff'},{y:12,h:6,fill:'#000000'}]);
+    }
+    return svg;
+  }
+
+  // ~60 names, Egyptian:Gulf roughly 2:1
   var names = [
-    {n:'محمد أ.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'أحمد م.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'مريم ح.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'}, {n:'فاطمة ع.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'خالد إ.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'يوسف ح.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#000"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#007a3d"/><polygon points="0,0 9,9 0,18" fill="#ce1126"/></svg>'},
-    {n:'رامي ي.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'دينا ش.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'سلمى ك.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'مصطفى ج.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'ريهام ع.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'نادية ر.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'كريم س.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'طارق ف.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'نادين ب.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="4.5" fill="#ee161f"/><rect y="4.5" width="26" height="9" fill="#fff"/><rect y="13.5" width="26" height="4.5" fill="#ee161f"/></svg>'}, {n:'عمر خ.',         f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'شيماء ن.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'نورة ش.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'مروة ز.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'هاني ب.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'خلود ب.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#000"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#007a3d"/><polygon points="0,0 9,9 0,18" fill="#ce1126"/></svg>'}, {n:'لمياء م.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'إيمان ث.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'فيصل ح.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'دعاء م.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'وليد غ.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'باسل ع.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'سامي ح.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'رانيا ف.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'عبدالله ز.',     f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'ياسمين ع.',     f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'أحمد ش.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'كارمن ج.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="4.5" fill="#ee161f"/><rect y="4.5" width="26" height="9" fill="#fff"/><rect y="13.5" width="26" height="4.5" fill="#ee161f"/></svg>'}, {n:'نهى ر.',         f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'حسام د.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'شيخة م.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#00732f"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/><rect width="7" height="18" fill="#ff0000"/></svg>'},
-    {n:'منى ك.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'وائل ب.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'عماد ز.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#000"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#007a3d"/><polygon points="0,0 9,9 0,18" fill="#ce1126"/></svg>'}, {n:'هبة ص.',         f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'محمود ط.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'سلطان ب.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#fff"/><rect y="6" width="26" height="6" fill="#db161b"/><rect y="12" width="26" height="6" fill="#008000"/><rect width="7" height="18" fill="#db161b"/></svg>'},
-    {n:'إسراء ر.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'علاء م.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'رنا ف.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'نيرمين ف.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'تامر ع.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'لطيفة ن.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#00732f"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/><rect width="7" height="18" fill="#ff0000"/></svg>'},
-    {n:'ضياء ح.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'ريم س.',         f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'هند ر.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'علي م.',         f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'منيرة د.',      f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#8d1b3d"/><rect width="7" height="18" fill="#fff"/></svg>'}, {n:'صفاء ي.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'},
-    {n:'حنان خ.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'ناصر ع.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'},
-    {n:'نادر ش.',       f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'لارا م.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="4.5" fill="#ee161f"/><rect y="4.5" width="26" height="9" fill="#fff"/><rect y="13.5" width="26" height="4.5" fill="#ee161f"/></svg>'},
-    {n:'رضا ب.',        f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="6" fill="#ce1126"/><rect y="6" width="26" height="6" fill="#fff"/><rect y="12" width="26" height="6" fill="#000"/></svg>'}, {n:'عبدالعزيز ر.',   f:'<svg width="1.2em" height="0.85em" viewBox="0 0 26 18" style="display:inline-block;vertical-align:middle;flex-shrink:0;border-radius:2px;overflow:hidden"><rect width="26" height="18" fill="#006c35"/><rect x="3" y="8" width="14" height="1.5" fill="#fff"/></svg>'}
+    {n:'محمد أ.',c:'EG'},{n:'أحمد م.',c:'EG'},{n:'مريم ح.',c:'SA'},{n:'فاطمة ع.',c:'EG'},
+    {n:'خالد إ.',c:'EG'},{n:'يوسف ح.',c:'JO'},{n:'رامي ي.',c:'EG'},{n:'دينا ش.',c:'EG'},
+    {n:'سلمى ك.',c:'SY'},{n:'مصطفى ج.',c:'EG'},{n:'ريهام ع.',c:'EG'},{n:'نادية ر.',c:'SA'},
+    {n:'كريم س.',c:'EG'},{n:'طارق ف.',c:'EG'},{n:'نادين ب.',c:'LB'},{n:'عمر خ.',c:'EG'},
+    {n:'شيماء ن.',c:'EG'},{n:'نورة ش.',c:'SA'},{n:'مروة ز.',c:'EG'},{n:'هاني ب.',c:'EG'},
+    {n:'خلود ب.',c:'JO'},{n:'لمياء م.',c:'EG'},{n:'إيمان ث.',c:'EG'},{n:'فيصل ح.',c:'SA'},
+    {n:'دعاء م.',c:'EG'},{n:'وليد غ.',c:'EG'},{n:'باسل ع.',c:'SY'},{n:'سامي ح.',c:'EG'},
+    {n:'رانيا ف.',c:'EG'},{n:'عبدالله ز.',c:'SA'},{n:'ياسمين ع.',c:'EG'},{n:'أحمد ش.',c:'EG'},
+    {n:'كارمن ج.',c:'LB'},{n:'نهى ر.',c:'EG'},{n:'حسام د.',c:'EG'},{n:'شيخة م.',c:'AE'},
+    {n:'منى ك.',c:'EG'},{n:'وائل ب.',c:'EG'},{n:'عماد ز.',c:'JO'},{n:'هبة ص.',c:'EG'},
+    {n:'محمود ط.',c:'EG'},{n:'سلطان ب.',c:'OM'},{n:'إسراء ر.',c:'EG'},{n:'علاء م.',c:'EG'},
+    {n:'رنا ف.',c:'SY'},{n:'نيرمين ف.',c:'EG'},{n:'تامر ع.',c:'EG'},{n:'لطيفة ن.',c:'AE'},
+    {n:'ضياء ح.',c:'EG'},{n:'ريم س.',c:'SA'},{n:'هند ر.',c:'EG'},{n:'علي م.',c:'EG'},
+    {n:'منيرة د.',c:'QA'},{n:'صفاء ي.',c:'EG'},{n:'حنان خ.',c:'EG'},{n:'ناصر ع.',c:'SA'},
+    {n:'نادر ش.',c:'EG'},{n:'لارا م.',c:'LB'},{n:'رضا ب.',c:'EG'},{n:'عبدالعزيز ر.',c:'SA'}
   ];
 
   var popup  = document.getElementById('enroll-popup');
@@ -2854,11 +2933,13 @@ gsap.to('.header-logo-img', {
   var hideTimer;
 
   function showPopup() {
-    if (!popup) return;
+    if (!popup || !epFlag || !epName) return;
     var d = names[idx % names.length];
     idx++;
     epName.textContent = d.n;
-    epFlag.textContent = d.f;
+    // Safely render the flag as a real SVG DOM node (NOT a text string)
+    while (epFlag.firstChild) epFlag.removeChild(epFlag.firstChild);
+    epFlag.appendChild(buildFlag(d.c));
     popup.style.opacity   = '1';
     popup.style.transform = 'translateX(0)';
     popup.style.pointerEvents = 'auto';
@@ -2872,9 +2953,9 @@ gsap.to('.header-logo-img', {
 
   function nextDelay() {
     var r = Math.random();
-    if (r < 0.30) return 10000 + Math.random() * 10000;   // 10–20 s
-    if (r < 0.70) return 25000 + Math.random() * 25000;   // 25–50 s
-    return 60000 + Math.random() * 120000;                 // 60–180 s
+    if (r < 0.30) return 10000 + Math.random() * 10000;
+    if (r < 0.70) return 25000 + Math.random() * 25000;
+    return 60000 + Math.random() * 120000;
   }
 
   function schedule() {
@@ -2882,7 +2963,7 @@ gsap.to('.header-logo-img', {
   }
 
   function start() {
-    showPopup();  // first popup fires once intro is done (or on load if no intro)
+    showPopup();
     schedule();
   }
 
