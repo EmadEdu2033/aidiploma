@@ -347,7 +347,13 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
   opacity:0; transition: transform 0.3s, box-shadow 0.3s;
 }
 .stat-card:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(46,134,255,0.15); }
-.stat-card .num { font-size:clamp(24px,3vw,34px); font-weight:900; color:var(--accent-gold); line-height:1.2; }
+.stat-card .num {
+  font-size: clamp(29px, 3.6vw, 41px);
+  font-weight: 900;
+  color: #00E5A0;
+  line-height: 1.2;
+  text-shadow: 0 0 12px rgba(0,229,160,0.8), 0 0 28px rgba(0,229,160,0.4);
+}
 .stat-card .label { font-size:14px; color:var(--soft-white); font-weight:400; margin-top:4px; }
 .date-banner {
   background:var(--navy-light); border-radius:14px; padding:16px 28px;
@@ -788,17 +794,19 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 }
 .pain-cards-col {
   position: relative;
-  height: 180px;
+  height: 220px;
 }
 .pain-card {
   position: absolute;
   top: 0; left: 0; right: 0;
+  min-height: 180px;
   background: rgba(15, 25, 80, 0.85);
   border: 1px solid rgba(108, 119, 243, 0.3);
   border-radius: 16px;
   padding: 24px 28px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
   transform: translateY(120%);
   opacity: 0;
@@ -1115,6 +1123,10 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
 .fit-item.row-draw .fit-row-mark {
   transition: stroke-dashoffset 0.3s 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   stroke-dashoffset: 0;
+}
+/* X mark: stagger the two strokes so second draws after first */
+.fit-item.row-draw .fit-row-mark + .fit-row-mark {
+  transition: stroke-dashoffset 0.3s 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fit-item.row-show {
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
@@ -1568,7 +1580,7 @@ html, body { overflow-x: hidden; }
     background:linear-gradient(160deg,#0a0e27,#0b1845);
     direction:rtl; padding:0 24px;">
     <div style="max-width:780px; width:100%; text-align:center; position:relative;">
-      <div class="intro-q" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(30px);opacity:0;width:100%;transition:opacity .45s ease,transform .5s ease;">كل ما تبدأ تتعلم، <span class="q-hl">تتوه</span> بين الأدوات؟</div>
+      <div class="intro-q" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(30px);opacity:0;width:100%;transition:opacity .45s ease,transform .5s ease;">لو أنت معلم… أكيد قابلتك الحاجات دي قبل كده</div>
       <div class="intro-q" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(30px);opacity:0;width:100%;transition:opacity .45s ease,transform .5s ease;">حاسس إن الذكاء الاصطناعي مهم لكن البداية <span class="q-hl">مش واضحة</span>؟</div>
       <div class="intro-q" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(30px);opacity:0;width:100%;transition:opacity .45s ease,transform .5s ease;">بتشوف الآخرين يطبقون وأنت لسه <span class="q-hl">تجمع من كل مكان</span>؟</div>
       <div class="intro-q" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(30px);opacity:0;width:100%;transition:opacity .45s ease,transform .5s ease;">المحتوى كتير لكن <span class="q-hl">مفيش مسار</span> واضح ومرتب؟</div>
@@ -2038,28 +2050,51 @@ html, body { overflow-x: hidden; }
   flex: 1 1 0;
   min-width: 0;
   max-width: 100px;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.13);
-  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
   padding: clamp(12px, 2.5vw, 22px) clamp(10px, 2vw, 26px);
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08),
-              0 8px 28px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3),
+              inset 0 1px 0 rgba(255,255,255,0.1);
 }
+/* specular highlight strip at top of glass box */
 #countdown-section .cd-box::before {
   content: '';
   position: absolute;
   top: 0;
-  left: -60%;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-  animation: glassShine 3.5s ease-in-out infinite;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
   pointer-events: none;
+  border-radius: 16px 16px 0 0;
+}
+/* scroll-triggered shimmer (one-shot, NOT looping) */
+#countdown-section .cd-box::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  pointer-events: none;
+  opacity: 0;
+}
+#countdown-section .cd-box.glass-shimmer::after {
+  animation: cdGlassShimmer 0.4s linear forwards;
+}
+@keyframes cdGlassShimmer {
+  0%   { left: -75%; opacity: 1; }
+  100% { left: 125%; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #countdown-section .cd-box.glass-shimmer::after { animation: none; opacity: 0; }
 }
 #countdown-section .cd-num {
   overflow: visible !important;
@@ -2091,12 +2126,6 @@ html, body { overflow-x: hidden; }
   font-weight: 800;
   margin: 24px 0;
 }
-@keyframes glassShine {
-  0%   { left: -60%; }
-  50%  { left: 120%; }
-  100% { left: 120%; }
-}
-
 /* ═══ STICKY TIMER BAR ═══ */
 #sticky-timer-bar {
   position: fixed;
@@ -2403,14 +2432,13 @@ function initHeroAnimations() {
     delay: 400,
     easing: easing
   });
-  /* Step 4 (600ms delay): Stats cards, 0.5s each, staggered 120ms */
+  /* Step 4 (600ms delay): Stats cards, 0.5s each, staggered 100ms (fade + scale 0.85→1) */
   anime({
     targets: '.stat-card',
     opacity: [0, 1],
-    translateY: [30, 0],
-    scale: [0.95, 1],
-    duration: 500,
-    delay: anime.stagger(120, { start: 600 }),
+    scale: [0.85, 1],
+    duration: 550,
+    delay: anime.stagger(100, { start: 600 }),
     easing: easing
   });
   /* Step 5 (900ms delay): Date bar fades in */
@@ -2742,9 +2770,9 @@ gsap.to('.header-logo-img', {
     entries.forEach(function(entry) {
       if (!entry.isIntersecting) return;
       items.forEach(function(li, i) {
-        setTimeout(function() { li.classList.add('row-draw'); }, i * 160);
+        setTimeout(function() { li.classList.add('row-draw'); }, i * 120);
         /* icon 0.35s draw + 0.2s delay ≈ 550ms, then text reveal */
-        setTimeout(function() { li.classList.add('row-show'); }, i * 160 + 600);
+        setTimeout(function() { li.classList.add('row-show'); }, i * 120 + 550);
       });
       observer.unobserve(entry.target);
     });
@@ -2771,9 +2799,9 @@ gsap.to('.header-logo-img', {
               entry.target.classList.contains('fit-col--no')) {
             var rows = entry.target.querySelectorAll('.fit-item');
             rows.forEach(function(row, i) {
-              setTimeout(function() { row.classList.add('row-draw'); }, i * 180);
+              setTimeout(function() { row.classList.add('row-draw'); }, i * 150);
               /* Icon draws 0.4s + 0.3s = 0.7s, then 150ms delay → ~850ms */
-              setTimeout(function() { row.classList.add('row-show'); }, i * 180 + 850);
+              setTimeout(function() { row.classList.add('row-show'); }, i * 150 + 850);
             });
           }
           observer.unobserve(entry.target);
@@ -3166,6 +3194,27 @@ gsap.to('.header-logo-img', {
     const nearHeader  = header ? header.getBoundingClientRect().bottom > 0 : false;
     bar.style.display = (pastTrigger && !nearHeader) ? 'flex' : 'none';
   }, { passive: true });
+})();
+
+/* ═══ COUNTDOWN GLASS SHIMMER ON SCROLL (one-shot per scroll burst) ═══ */
+(function () {
+  const boxes = Array.from(document.querySelectorAll('#countdown-section .cd-box'));
+  if (!boxes.length) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let cooldown = false;
+  function trigger() {
+    if (cooldown) return;
+    cooldown = true;
+    boxes.forEach((b) => {
+      b.classList.remove('glass-shimmer');
+      // force reflow so animation can re-trigger
+      void b.offsetWidth;
+      b.classList.add('glass-shimmer');
+    });
+    setTimeout(() => boxes.forEach((b) => b.classList.remove('glass-shimmer')), 450);
+    setTimeout(() => { cooldown = false; }, 600);
+  }
+  window.addEventListener('scroll', trigger, { passive: true });
 })();
 </script>
 
