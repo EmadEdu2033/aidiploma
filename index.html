@@ -771,11 +771,10 @@ img.badge-img { mix-blend-mode:screen; background:transparent!important; }
    ===================== */
 .pain-sticky-wrapper {
   position: relative;
-  /* height set by JS: painCards.length * 100vh — no dead space */
+  /* height managed by GSAP ScrollTrigger pin */
 }
 .pain-sticky-inner {
-  position: sticky;
-  top: 0;
+  /* ScrollTrigger will pin this element via position: fixed */
   height: 100vh;
   display: flex;
   align-items: center;
@@ -1573,17 +1572,15 @@ html, body { overflow-x: hidden; }
 <!-- ═══ INTRO QUESTIONS — STICKY SCROLL-PINNED ═══ -->
 <style id="intro-scroll-style">
 #intro-scroll-outer {
-  /* height set by JS: sentences.length * 100vh — no dead space */
+  /* height managed by GSAP ScrollTrigger pin */
   position: relative;
   background: var(--navy-deep, #050c1a);
   width: 100%;
-  overflow: hidden;
   padding-inline: clamp(16px, 5vw, 80px);
   direction: rtl;
 }
 #intro-scroll-sticky {
-  position: sticky;
-  top: 0;
+  /* ScrollTrigger will pin this element via position: fixed */
   height: 100vh;
   display: flex;
   align-items: center;
@@ -3442,26 +3439,36 @@ gsap.to('.header-logo-img', {
 </script>
 
 <script>
-/* ═══════════════════════════════════════════
-   SCROLL-POSITION ENGINE — INTRO TEXT + PAIN CARDS
-   (works on desktop AND mobile — no wheel hijack)
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   PIN ENGINE — INTRO TEXT + PAIN CARDS
+   Uses GSAP ScrollTrigger's `pin` (position: fixed internally),
+   which works reliably on DESKTOP + MOBILE and is immune to
+   `overflow-x: hidden` on html/body ancestors (which breaks
+   native CSS `position: sticky` on iOS Safari).
+   ═══════════════════════════════════════════════════════════ */
 (function(){
 
-  /* ─── SECTION ELEMENTS ─── */
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    console.warn('[pin-engine] GSAP/ScrollTrigger not loaded — aborting');
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
   var introOuter    = document.getElementById('intro-scroll-outer');
+  var introSticky   = document.getElementById('intro-scroll-sticky');
   var introDisplay  = document.getElementById('intro-question-display');
   var painSection   = document.getElementById('pain-points');
   var painWrapper   = painSection
                       ? painSection.querySelector('.pain-sticky-wrapper')
                       : null;
+  var painInner     = document.getElementById('painStickyInner');
   var painCardsCol  = document.getElementById('painCardsCol');
   var painCards     = painCardsCol
                       ? Array.from(painCardsCol.querySelectorAll('.pain-card'))
                       : [];
 
   /* ════════════════════════════════
-     PART A — INTRO (TEXT ONLY)
+     PART A — INTRO SENTENCES SETUP
      ════════════════════════════════ */
 
   var sentences = [
@@ -3494,7 +3501,7 @@ gsap.to('.header-logo-img', {
   }
 
   /* ════════════════════════════════
-     PART B — PAIN CARDS (STACK)
+     PART B — PAIN CARDS SETUP
      ════════════════════════════════ */
 
   if (painCardsCol) {
@@ -3524,14 +3531,12 @@ gsap.to('.header-logo-img', {
         'will-change:opacity,transform;' +
         'z-index:' + (i === 0 ? painCards.length : 0) + ';';
     });
-    /* First card visible at init */
     if (painCards[0]) {
       painCards[0].style.opacity   = '1';
       painCards[0].style.transform = 'translateY(0px) scale(1)';
     }
   }
 
-  /* Depth values for stack illusion */
   var D_SCALE   = [1,    0.95,  0.90,  0.85];
   var D_Y       = [0,    10,    20,    30];
   var D_OPACITY = [1,    0.72,  0.50,  0.28];
@@ -3541,7 +3546,6 @@ gsap.to('.header-logo-img', {
     painCards.forEach(function(card, i){
       var depth = activeIdx - i;
       if (i > activeIdx) {
-        /* Not yet revealed */
         card.style.opacity   = '0';
         card.style.transform = 'translateY(50px) scale(0.93)';
         card.style.zIndex    = '0';
@@ -3552,97 +3556,77 @@ gsap.to('.header-logo-img', {
         var o = D_OPACITY[depth] !== undefined ? D_OPACITY[depth] : 0;
         card.style.opacity   = o;
         card.style.transform = 'translateY(' + y + 'px) scale(' + s + ')';
-        /* Active card on top, earlier cards stacked behind it */
         card.style.zIndex    = String(total - depth);
         if (i < activeIdx) card.classList.add('behind');
         else card.classList.remove('behind');
       }
     });
 
-    /* Sync dots */
     var dots = document.querySelectorAll('#painProgressDots .dot');
     dots.forEach(function(d, di){
       d.classList.toggle('active', di === activeIdx);
     });
   }
 
-  /* ════════════════════════════════
-     PART C — SET HEIGHTS (JS-DRIVEN)
-     ════════════════════════════════ */
-
-  function applyHeights(){
-    if (introOuter) {
-      introOuter.style.height = (sentences.length * 100) + 'vh';
-    }
-    if (painWrapper) {
-      painWrapper.style.height = (painCards.length * 100) + 'vh';
-    }
-  }
-  applyHeights();
-
-  /* ════════════════════════════════
-     PART D — SCROLL-POSITION ENGINE
-     (works on desktop AND mobile)
-     ════════════════════════════════ */
-
-  var lastIntroStep = -1;
-  var lastPainStep  = -1;
-  var ticking = false;
-
-  function clamp(v, lo, hi){ return v < lo ? lo : (v > hi ? hi : v); }
-
-  function computeStep(el, totalSteps){
-    if (!el) return 0;
-    var rect = el.getBoundingClientRect();
-    var vh   = window.innerHeight || document.documentElement.clientHeight;
-    /* When top reaches 0, step 0 locks; as we scroll N*vh, step N reached */
-    var scrolled = -rect.top;
-    if (scrolled < 0) return 0;
-    var maxScroll = (totalSteps - 1) * vh;
-    if (scrolled >= maxScroll) return totalSteps - 1;
-    return clamp(Math.floor(scrolled / vh), 0, totalSteps - 1);
-  }
-
-  function updateAll(){
-    ticking = false;
-
-    if (introOuter) {
-      var introStep = computeStep(introOuter, sentences.length);
-      if (introStep !== lastIntroStep) {
-        lastIntroStep = introStep;
-        renderIntroStep(introStep);
-      }
-    }
-
-    if (painWrapper && painCards.length) {
-      var painStep = computeStep(painWrapper, painCards.length);
-      if (painStep !== lastPainStep) {
-        lastPainStep = painStep;
-        renderPainStack(painStep);
-      }
-    }
-  }
-
-  function onScroll(){
-    if (!ticking) {
-      ticking = true;
-      window.requestAnimationFrame(updateAll);
-    }
-  }
-
-  function onResize(){
-    applyHeights();
-    onScroll();
-  }
-
   /* Initial render */
   renderIntroStep(0);
   renderPainStack(0);
-  updateAll();
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onResize, { passive: true });
-  window.addEventListener('orientationchange', onResize, { passive: true });
+  /* ════════════════════════════════
+     PART C — BUILD PIN SCROLLTRIGGERS
+     ════════════════════════════════ */
+
+  /* INTRO: pin #intro-scroll-sticky while scrolling through outer.
+     Scroll distance = (sentences.length) * viewport height, so each
+     sentence owns 100vh of scroll — feels natural on touch devices. */
+  if (introOuter && introSticky) {
+    ScrollTrigger.create({
+      trigger: introOuter,
+      start: 'top top',
+      end: function(){ return '+=' + (window.innerHeight * sentences.length); },
+      pin: introSticky,
+      pinSpacing: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate: function(self){
+        /* progress 0..1 → step 0..sentences.length-1 */
+        var step = Math.min(
+          sentences.length - 1,
+          Math.floor(self.progress * sentences.length)
+        );
+        renderIntroStep(step);
+      }
+    });
+  }
+
+  /* PAIN: pin .pain-sticky-inner while scrolling through wrapper.
+     Scroll distance = painCards.length * viewport height. */
+  if (painWrapper && painInner && painCards.length) {
+    ScrollTrigger.create({
+      trigger: painWrapper,
+      start: 'top top',
+      end: function(){ return '+=' + (window.innerHeight * painCards.length); },
+      pin: painInner,
+      pinSpacing: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate: function(self){
+        var step = Math.min(
+          painCards.length - 1,
+          Math.floor(self.progress * painCards.length)
+        );
+        renderPainStack(step);
+      }
+    });
+  }
+
+  /* Recalculate on resize/orientation change */
+  window.addEventListener('resize', function(){
+    ScrollTrigger.refresh();
+  }, { passive: true });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(function(){ ScrollTrigger.refresh(); }, 200);
+  }, { passive: true });
 
 })();
 </script>
