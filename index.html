@@ -1598,6 +1598,39 @@ html, body { overflow-x: hidden; }
   padding: 0 clamp(16px, 5vw, 80px);
   max-width: 820px;
   width: 100%;
+  min-height: 240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Stacked intro sentences — plain centered white text, no card chrome */
+#intro-question-display .iq-text-item {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 8px;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.65;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+#intro-question-display .iq-text-item.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+#intro-question-display .iq-text-item.is-past {
+  opacity: 0;
+  transform: translateY(-24px);
 }
 /* Hand-drawn SVG annotations (underline / double-underline / circle) */
 .annotation-wrapper {
@@ -3439,61 +3472,26 @@ gsap.to('.header-logo-img', {
   var introStep = 0;
 
   if (introDisplay) {
-    /* Clear existing content */
+    /* Clear existing content — don't touch container styles (CSS handles layout) */
     introDisplay.innerHTML = '';
-    introDisplay.style.cssText =
-      'position:relative;width:100%;min-height:200px;' +
-      'display:flex;align-items:center;justify-content:center;';
 
-    /* Create one <p> per sentence, stacked absolutely */
+    /* Create one <p> per sentence, stacked via CSS class */
     sentences.forEach(function(txt, i){
       var p = document.createElement('p');
-      p.className = 'iq-text-item';
+      p.className = 'iq-text-item' + (i === 0 ? ' is-active' : '');
       p.setAttribute('data-idx', i);
       p.textContent = txt;
-      p.style.cssText =
-        'position:absolute;' +
-        'top:50%;left:50%;' +
-        'transform:translate(-50%,-50%);' +
-        'width:min(700px,88vw);' +
-        'margin:0;padding:0;' +
-        'font-size:clamp(26px,4vw,44px);' +
-        'font-weight:800;' +
-        'color:#ffffff;' +
-        'line-height:1.65;' +
-        'text-align:center;' +
-        'opacity:' + (i === 0 ? '1' : '0') + ';' +
-        'transition:opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);' +
-        'pointer-events:none;' +
-        'will-change:opacity,transform;';
       introDisplay.appendChild(p);
     });
   }
 
-  /* Make intro outer tall enough to be "in view" while hijacking */
-  if (introOuter) {
-    introOuter.style.minHeight    = '100vh';
-    introOuter.style.display      = 'flex';
-    introOuter.style.alignItems   = 'center';
-    introOuter.style.justifyContent = 'center';
-  }
-
   function renderIntroStep(step) {
-    var items = document.querySelectorAll('.iq-text-item');
+    var items = document.querySelectorAll('#intro-question-display .iq-text-item');
     items.forEach(function(item, i){
-      if (i === step) {
-        /* Active sentence — fully visible, centered */
-        item.style.opacity   = '1';
-        item.style.transform = 'translate(-50%,-50%)';
-      } else if (i < step) {
-        /* Past sentence — fade out upward */
-        item.style.opacity   = '0';
-        item.style.transform = 'translate(-50%,-80%)';
-      } else {
-        /* Future sentence — hidden below */
-        item.style.opacity   = '0';
-        item.style.transform = 'translate(-50%,-30%)';
-      }
+      item.classList.remove('is-active', 'is-past');
+      if (i === step) item.classList.add('is-active');
+      else if (i < step) item.classList.add('is-past');
+      /* future items: no class → default opacity:0, translateY(20px) */
     });
   }
 
@@ -3511,23 +3509,24 @@ gsap.to('.header-logo-img', {
   if (painCardsCol) {
     painCardsCol.style.cssText =
       'position:relative;' +
-      'min-height:220px;' +
-      'display:flex;' +
-      'align-items:center;' +
-      'justify-content:center;';
+      'width:100%;' +
+      'min-height:260px;' +
+      'height:auto;';
 
     painCards.forEach(function(card, i){
       card.style.cssText =
         'position:absolute;' +
-        'top:50%;left:50%;' +
-        'transform:translate(-50%,-50%) scale(1) translateY(0px);' +
+        'top:0;left:0;right:0;' +
+        'transform:translateY(0px) scale(1);' +
         'width:100%;' +
-        'min-height:160px;' +
+        'min-height:180px;' +
         'box-sizing:border-box;' +
         'display:flex;flex-direction:column;' +
-        'align-items:center;justify-content:center;' +
-        'text-align:center;' +
-        'padding:32px 28px;' +
+        'align-items:flex-start;justify-content:center;' +
+        'text-align:right;' +
+        'padding:28px 32px;' +
+        'border-radius:16px;' +
+        'border:1px solid rgba(255,255,255,0.08);' +
         'opacity:' + (i === 0 ? '1' : '0') + ';' +
         'transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1),' +
                    'transform 0.45s cubic-bezier(0.22,1,0.36,1);' +
@@ -3546,15 +3545,14 @@ gsap.to('.header-logo-img', {
       if (i > activeIdx) {
         /* Not yet revealed */
         card.style.opacity   = '0';
-        card.style.transform = 'translate(-50%,-50%) translateY(50px) scale(0.93)';
+        card.style.transform = 'translateY(50px) scale(0.93)';
         card.classList.remove('behind');
       } else {
         var s = D_SCALE[depth]   !== undefined ? D_SCALE[depth]   : 0.75;
         var y = D_Y[depth]       !== undefined ? D_Y[depth]       : 40;
         var o = D_OPACITY[depth] !== undefined ? D_OPACITY[depth] : 0;
         card.style.opacity   = o;
-        card.style.transform =
-          'translate(-50%,-50%) translateY(' + y + 'px) scale(' + s + ')';
+        card.style.transform = 'translateY(' + y + 'px) scale(' + s + ')';
         /* Mark previously-revealed cards as "behind" */
         if (i < activeIdx) card.classList.add('behind');
         else card.classList.remove('behind');
