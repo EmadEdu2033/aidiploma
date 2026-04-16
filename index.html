@@ -1478,6 +1478,77 @@ html, body { overflow-x: hidden; }
   transform: none;
   opacity: 1;
 }
+/* Pain section ambient backdrop */
+#pain-points {
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(46,134,255,0.06), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(17,31,96,0.4), transparent 60%),
+    linear-gradient(160deg, #0a0e27 0%, #0d1b4b 60%, #111f60 100%) !important;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+/* Pain layout: top-aligned instead of centered */
+#pain-points .pain-layout { align-items: flex-start !important; }
+/* Per-card tinted background */
+#pain-points .pain-card[data-card-idx="0"] { background: rgba(46,134,255,0.08) !important; }
+#pain-points .pain-card[data-card-idx="1"] { background: rgba(0,212,164,0.08) !important; }
+#pain-points .pain-card[data-card-idx="2"] { background: rgba(245,200,66,0.08) !important; }
+#pain-points .pain-card[data-card-idx="3"] { background: rgba(230,57,70,0.08) !important; }
+/* Behind state for previously-revealed cards in the stack */
+#pain-points .pain-card.behind {
+  filter: brightness(0.85);
+}
+/* ===== Global fade-up scroll animation ===== */
+[data-anim="fadeUp"] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: opacity, transform;
+}
+[data-anim="fadeUp"].in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-anim="fadeUp"] { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+/* ===== Typewriter cursor ===== */
+.tw-cursor {
+  display: inline-block;
+  margin-inline-start: 2px;
+  animation: tw-blink 0.7s step-end infinite;
+}
+@keyframes tw-blink { 50% { opacity: 0; } }
+/* ===== WhatsApp float button bounce (layered on the existing pulse) ===== */
+@keyframes wa-bounce {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-8px); }
+  60%      { transform: translateY(-4px); }
+}
+#wa-float-btn {
+  animation: wa-pulse 2.2s ease-out infinite, wa-bounce 2.5s ease-in-out infinite;
+}
+/* ===== Guarantee checkmark draw + halo ===== */
+.guarantee-box .guarantee-icon svg path:nth-child(2) {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  transition: stroke-dashoffset 0.6s ease-out;
+}
+.guarantee-box.drawn .guarantee-icon svg path:nth-child(2) {
+  stroke-dashoffset: 0;
+}
+.guarantee-box.pulse {
+  animation: guarantee-halo 0.8s ease-out;
+}
+@keyframes guarantee-halo {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  100% { box-shadow: 0 0 0 16px rgba(34,197,94,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guarantee-box .guarantee-icon svg path:nth-child(2) { stroke-dashoffset: 0 !important; transition: none !important; }
+  #wa-float-btn { animation: wa-pulse 2.2s ease-out infinite !important; }
+  .tw-cursor { animation: none !important; }
+}
 </style>
 
 </head>
@@ -1506,6 +1577,9 @@ html, body { overflow-x: hidden; }
   position: relative;
   background: var(--navy-deep, #050c1a);
   width: 100%;
+  overflow: hidden;
+  padding-inline: clamp(16px, 5vw, 80px);
+  direction: rtl;
 }
 #intro-scroll-sticky {
   position: sticky;
@@ -1742,7 +1816,7 @@ html, body { overflow-x: hidden; }
       </div>
     </div>
     <div class="capstone-card">
-      <h3>⚒️ + 8 ساعات تطبيق عملي ومشروع تخرج</h3>
+      <h3><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0;display:inline-block;margin-inline-end:6px"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> + 8 ساعات تطبيق عملي ومشروع تخرج</h3>
       <p>تطبق كل اللي اتعلمته في مشروع حقيقي يوثق خبرتك ويُضاف لـ LinkedIn Portfolio بتاعك</p>
     </div>
   </div>
@@ -1899,7 +1973,7 @@ html, body { overflow-x: hidden; }
       <div class="learn-card"><div class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg></div><h4>دروس أسرع وتقييم ذكي</h4><p>صمم دروسك بسرعة، واعمل كويزات وتقييمات تفاعلية في دقائق</p></div>
       <div class="learn-card"><div class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20c1.1 0 2-.9 2-2v-.5c0-.3.2-.5.5-.5h1c2.5 0 4-1.5 4-4 0-4.4-4-7-7.5-7z"/></svg></div><h4>إبداع بصري ومحتوى تعليمي</h4><p>صمم صور وفيديوهات تعليمية وقصص بصوتك باستخدام الذكاء الاصطناعي</p></div>
       <div class="learn-card"><div class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;flex-shrink:0"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/><path d="M17.32 5H6.68a4 4 0 00-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 003 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 019.828 16h4.344a2 2 0 011.414.586L17 18c.5.5 1 1 2 1a3 3 0 003-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0017.32 5z"/></svg></div><h4>ألعاب تعليمية بدون برمجة</h4><p>انشئ ألعاب تعليمية تفاعلية من غير ما تعرف أي كود برمجي</p></div>
-      <div class="learn-card"><div class="icon">⚙️</div><h4>أتمتة التقارير والتواصل</h4><p>اعمل أوتوميشن للتقارير وابعتها للطلاب وأولياء الأمور تلقائيًا</p></div>
+      <div class="learn-card"><div class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><h4>أتمتة التقارير والتواصل</h4><p>اعمل أوتوميشن للتقارير وابعتها للطلاب وأولياء الأمور تلقائيًا</p></div>
       <div class="learn-card"><div class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;flex-shrink:0"><path d="M6 2h12v8a6 6 0 01-12 0V2z"/><path d="M6 5H3a1 1 0 00-1 1v1a4 4 0 004 4M18 5h3a1 1 0 011 1v1a4 4 0 01-4 4"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg></div><h4>مشروع تخرج عملي موثق</h4><p>نفّذ مشروع تخرج حقيقي يوثق خبرتك في الـ AI ويُسجَّل على LinkedIn</p></div>
     </div>
   </div>
@@ -2543,30 +2617,142 @@ function initHeroAnimations() {
     easing: 'easeOutBack'
   });
 
-  /* Counter animation — easeOutQuart, 1.5s */
-  document.querySelectorAll('.stat-card .num').forEach(function(el) {
-    var target = parseInt(el.getAttribute('data-target'));
-    var prefix = el.getAttribute('data-prefix') || '';
-    var obj = { v: 0 };
-    anime({
-      targets: obj,
-      v: target,
-      round: 1,
-      duration: 1500,
-      delay: 700,
-      easing: 'easeOutQuart',
-      update: function() {
-        var val = Math.round(obj.v);
-        if (target === 30) el.innerHTML = val + (prefix || '+');
-        else el.innerHTML = String(val);
-      },
-      complete: function() {
-        if (target === 30) el.innerHTML = target + (prefix || '+');
-        else el.innerHTML = String(target);
-      }
+  /* Counter animation — handled globally via IntersectionObserver (see below). */
+}
+
+/* ====== GUARANTEE-BOX CHECKMARK DRAW + PULSE HALO ====== */
+(function(){
+  var box = document.querySelector('.guarantee-box');
+  if (!box) return;
+  if (!('IntersectionObserver' in window)) { box.classList.add('drawn'); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      box.classList.add('drawn');
+      /* After the stroke draws, fire a green halo pulse once */
+      setTimeout(function(){
+        box.classList.add('pulse');
+        var onEnd = function(){ box.classList.remove('pulse'); box.removeEventListener('animationend', onEnd); };
+        box.addEventListener('animationend', onEnd);
+      }, 600);
+      io.unobserve(box);
+    });
+  }, { threshold: 0.4 });
+  io.observe(box);
+})();
+
+/* ====== FOOTER TYPEWRITER ====== */
+(function(){
+  var target = null;
+  document.querySelectorAll('.site-footer h2, footer h2').forEach(function(h){
+    if (h.textContent.indexOf('عندك أي استفسار') !== -1) target = h;
+  });
+  if (!target) return;
+  var full = target.textContent;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return;
+
+  function run(){
+    target.textContent = '';
+    var cursor = document.createElement('span');
+    cursor.className = 'tw-cursor';
+    cursor.textContent = '|';
+    target.appendChild(cursor);
+    var i = 0;
+    var id = setInterval(function(){
+      if (i >= full.length) { clearInterval(id); return; }
+      cursor.insertAdjacentText('beforebegin', full.charAt(i));
+      i++;
+    }, 60);
+  }
+
+  if (!('IntersectionObserver' in window)) { run(); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) { run(); io.unobserve(target); }
+    });
+  }, { threshold: 0.5 });
+  io.observe(target);
+})();
+
+/* ====== GLOBAL FADE-UP ON SCROLL ====== */
+(function(){
+  /* Auto-tag target elements with data-anim="fadeUp" */
+  var fadeSelectors = [
+    '.section-header',
+    '.learn-card',
+    '.price-card',
+    '.outcome-check-card',
+    '#early-bird',
+    '#pricing',
+    '#guarantee-section',
+    '.pain-not-fault-section'
+  ];
+  fadeSelectors.forEach(function(sel){
+    document.querySelectorAll(sel).forEach(function(el){
+      if (!el.hasAttribute('data-anim')) el.setAttribute('data-anim', 'fadeUp');
     });
   });
-}
+
+  var items = document.querySelectorAll('[data-anim="fadeUp"]');
+  if (!items.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(function(el){ el.classList.add('in-view'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  items.forEach(function(el){ io.observe(el); });
+})();
+
+/* ====== COUNTER ANIMATION — IntersectionObserver + easeOutQuad ====== */
+(function(){
+  var easeOutQuad = function(t){ return t * (2 - t); };
+  var targets = document.querySelectorAll('[data-target]');
+  if (!targets.length) return;
+
+  function runCounter(el){
+    if (el._counted) return;
+    el._counted = true;
+    var target = parseInt(el.getAttribute('data-target'), 10) || 0;
+    /* data-prefix on existing markup is actually an appended marker (e.g. "+") */
+    var appended = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    var DURATION = 1500;
+    var start = null;
+    function step(ts){
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / DURATION);
+      var eased = easeOutQuad(p);
+      var val = Math.round(target * eased);
+      el.textContent = val + appended + suffix;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target + appended + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach(runCounter);
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        runCounter(entry.target);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.35 });
+  targets.forEach(function(el){ io.observe(el); });
+})();
 
 // ====== GSAP SCROLL ANIMATIONS ======
 gsap.registerPlugin(ScrollTrigger);
@@ -2999,7 +3185,7 @@ gsap.to('.header-logo-img', {
 
 /* ═══ SHARED COUNTDOWN (sticky bar + countdown section) ═══ */
 (function(){
-  var DEADLINE = new Date('2026-04-18T00:00:00+02:00').getTime();
+  var DEADLINE = new Date('2026-04-21T23:59:59+02:00').getTime();
 
   var el = {
     cdD: document.getElementById('cd-days'),
@@ -3022,10 +3208,28 @@ gsap.to('.header-logo-img', {
     var diff = DEADLINE - now;
     if (diff <= 0) {
       if (el.cdBoxes) el.cdBoxes.style.display = 'none';
-      if (el.cdExpired) el.cdExpired.style.display = 'block';
-      if (el.stbMini) {
-        el.stbMini.innerHTML = '<span class="stb-expired">انتهى العرض</span>';
+      if (el.cdExpired) {
+        el.cdExpired.textContent = 'انتهى العرض · سيرتفع السعر قريباً';
+        el.cdExpired.style.display = 'block';
       }
+      if (el.stbMini) {
+        el.stbMini.innerHTML = '<span class="stb-expired">انتهى العرض · سيرتفع السعر قريباً</span>';
+      }
+      /* Bump visible prices: EGP 2,499 -> 3,750, USD $59 -> $99 */
+      try {
+        document.querySelectorAll('.new-price').forEach(function(n){
+          var t = n.textContent;
+          if (t.indexOf('2,499') !== -1) n.textContent = t.replace('2,499', '3,750');
+          if (t.indexOf('$59') !== -1)   n.textContent = t.replace('$59', '$99');
+        });
+        document.querySelectorAll('.paypal-usd-price').forEach(function(n){
+          n.textContent = n.textContent.replace('$59.00', '$99.00').replace('$59', '$99');
+        });
+        /* Hide the old strikethrough price since there's no longer a discount */
+        document.querySelectorAll('.old-price, .discount-pill').forEach(function(n){
+          n.style.display = 'none';
+        });
+      } catch(_) {}
       return false;
     }
     var days  = Math.floor(diff / 86400000);
@@ -3343,6 +3547,7 @@ gsap.to('.header-logo-img', {
         /* Not yet revealed */
         card.style.opacity   = '0';
         card.style.transform = 'translate(-50%,-50%) translateY(50px) scale(0.93)';
+        card.classList.remove('behind');
       } else {
         var s = D_SCALE[depth]   !== undefined ? D_SCALE[depth]   : 0.75;
         var y = D_Y[depth]       !== undefined ? D_Y[depth]       : 40;
@@ -3350,6 +3555,9 @@ gsap.to('.header-logo-img', {
         card.style.opacity   = o;
         card.style.transform =
           'translate(-50%,-50%) translateY(' + y + 'px) scale(' + s + ')';
+        /* Mark previously-revealed cards as "behind" */
+        if (i < activeIdx) card.classList.add('behind');
+        else card.classList.remove('behind');
       }
     });
 
