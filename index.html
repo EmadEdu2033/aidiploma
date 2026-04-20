@@ -1270,89 +1270,6 @@ header h2, nav h2 { text-shadow: none !important; }
 }
 </style>
 
-<style id="pain-cards-fix">
-/* Pain-points section opaque background + 3D perspective */
-#pain-points {
-  background: #04091a !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  position: relative !important;
-  z-index: 2 !important;
-  perspective: 1200px;
-}
-#pain-points .pain-cards-col {
-  perspective: 1200px;
-}
-/* Base card — absolute, 3D stacked via data-offset */
-#pain-points .pain-card {
-  position: absolute !important;
-  inset: 0;
-  top: 0; left: 0; right: 0;
-  background: rgba(12, 24, 68, 0.97) !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  border-radius: 18px !important;
-  transform-origin: center top;
-  will-change: transform, opacity;
-  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1),
-              opacity  0.55s ease,
-              box-shadow 0.55s ease !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-}
-/* Active card — front */
-#pain-points .pain-card[data-offset="0"] {
-  transform: translateY(0) scale(1) rotateX(0deg);
-  opacity: 1; z-index: 5;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
-}
-/* One card BEHIND active (next/upcoming peek) */
-#pain-points .pain-card[data-offset="1"] {
-  transform: translateY(-22px) scale(0.96) rotateX(3deg);
-  opacity: 0.7; z-index: 4;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-}
-/* Two cards behind */
-#pain-points .pain-card[data-offset="2"] {
-  transform: translateY(-40px) scale(0.92) rotateX(6deg);
-  opacity: 0.45; z-index: 3;
-}
-/* Three cards behind — barely visible peek */
-#pain-points .pain-card[data-offset="3"] {
-  transform: translateY(-54px) scale(0.88) rotateX(9deg);
-  opacity: 0.2; z-index: 2;
-}
-/* Cards already passed (below/hidden) */
-#pain-points .pain-card[data-offset="-1"] {
-  transform: translateY(80px) scale(0.94);
-  opacity: 0; z-index: 1; pointer-events: none;
-}
-#pain-points .pain-card[data-offset="-2"],
-#pain-points .pain-card[data-offset="-3"],
-#pain-points .pain-card[data-offset="-4"] {
-  transform: translateY(120px) scale(0.9);
-  opacity: 0; z-index: 0; pointer-events: none;
-}
-/* Cards too far forward in the stack — hidden */
-#pain-points .pain-card[data-offset="4"],
-#pain-points .pain-card[data-offset="5"] {
-  transform: translateY(-60px) scale(0.84) rotateX(12deg);
-  opacity: 0; z-index: 1; pointer-events: none;
-}
-#pain-points .pain-card p,
-#pain-points .pain-card span {
-  color: #e2e8f0 !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-}
-#pain-points .pain-card .pain-x-icon {
-  color: #e63946 !important;
-  -webkit-text-fill-color: #e63946 !important;
-}
-</style>
-
 <style id="hero-anim-fix">
 @keyframes heroFadeUp {
   from { opacity: 0; transform: translateY(32px); }
@@ -1416,86 +1333,10 @@ img, video { height: auto; }
 html, body { overflow-x: hidden; }
 </style>
 
-<style id="pain-ghost-remove">
-/* SPEC FIX 2 — hide any ghost/decorative leftover behind pain-points cards.
-   Structural wrappers (container, sticky, layout, not-fault) are allow-listed
-   so the section itself does not collapse. */
-#pain-points > *:not([class*="card"]):not([class*="slide"]):not([class*="container"]):not([class*="sticky"]):not([class*="layout"]):not([class*="not-fault"]):not(h2):not(h3):not(p):not(.dots):not(.progress) {
-  display: none !important;
-}
-#pain-points [class*="icon-bg"],
-#pain-points [class*="bg-shape"],
-#pain-points [class*="deco"],
-#pain-points [class*="ghost"],
-#pain-points [class*="placeholder"],
-#pain-points [class*="pattern"],
-#pain-points [class*="overlay-icon"] {
-  display: none !important;
-}
-/* Hide unrelated decorative SVGs (keep close/arrow/check/card X icons) */
-#pain-points .pain-cards-col > svg:not([class*="close"]):not([class*="arrow"]) {
-  display: none !important;
-}
-/* Ensure the card column has no leftover ghost background */
-#pain-points .pain-cards-col,
-#pain-points .pain-sticky-inner,
-#pain-points .pain-sticky-wrapper,
-#pain-points .pain-layout {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-#pain-points .pain-cards-col::before,
-#pain-points .pain-cards-col::after,
-#pain-points .pain-sticky-inner::before,
-#pain-points .pain-sticky-inner::after {
-  display: none !important;
-  content: none !important;
-}
-/* Neutralize legacy .pain-card.behind opacity — past cards must be hidden */
-#pain-points .pain-card.behind {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-</style>
-
-<style id="scroll-hijack-overrides">
-/* Scroll-hijack support: let pain cards overflow the column and disable
-   the legacy per-offset CSS so inline styles from the hijack JS win. */
+<style id="global-anim-fx">
 #intro-scroll-outer {
   position: relative;
   overflow: hidden;
-}
-#painCardsCol {
-  overflow: visible !important;
-}
-.pain-sticky-wrapper {
-  overflow: visible !important;
-}
-/* Neutralize legacy data-offset rules — hijack JS fully controls pain cards now */
-#pain-points .pain-card[data-offset] {
-  transform: none;
-  opacity: 1;
-}
-/* Pain section ambient backdrop */
-#pain-points {
-  background:
-    radial-gradient(ellipse at 30% 50%, rgba(46,134,255,0.06), transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(17,31,96,0.4), transparent 60%),
-    linear-gradient(160deg, #0a0e27 0%, #0d1b4b 60%, #111f60 100%) !important;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-}
-/* Pain layout: top-aligned instead of centered */
-#pain-points .pain-layout { align-items: flex-start !important; }
-/* Per-card tinted background */
-#pain-points .pain-card[data-card-idx="0"] { background: rgba(46,134,255,0.08) !important; }
-#pain-points .pain-card[data-card-idx="1"] { background: rgba(0,212,164,0.08) !important; }
-#pain-points .pain-card[data-card-idx="2"] { background: rgba(245,200,66,0.08) !important; }
-#pain-points .pain-card[data-card-idx="3"] { background: rgba(230,57,70,0.08) !important; }
-/* Behind state for previously-revealed cards in the stack */
-#pain-points .pain-card.behind {
-  filter: brightness(0.85);
 }
 /* ===== Global fade-up scroll animation ===== */
 [data-anim="fadeUp"] {
@@ -2805,13 +2646,34 @@ gsap.utils.toArray('.section-header').forEach(function(el) {
   });
 });
 
-// Timeline cards
-gsap.utils.toArray('.tl-card').forEach(function(el, i) {
-  gsap.fromTo(el, { opacity: 0, x: i % 2 === 0 ? -60 : 60 }, {
-    opacity: 1, x: 0, duration: 0.8,
-    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+// Timeline cards — odd enters from RIGHT, even from LEFT (RTL-agnostic)
+(function(){
+  var reduceMotion = window.matchMedia &&
+                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  gsap.utils.toArray('.timeline-item').forEach(function(item, idx){
+    var card = item.querySelector('.tl-card');
+    if (!card) return;
+    if (reduceMotion) {
+      gsap.set(card, { opacity: 1, x: 0 });
+      return;
+    }
+    /* idx 0 → nth-child(1) = odd → from RIGHT (+80px). */
+    var fromX = (idx % 2 === 0) ? 80 : -80;
+    gsap.fromTo(card,
+      { opacity: 0, x: fromX },
+      {
+        opacity: 1, x: 0,
+        duration: 0.65,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
   });
-});
+})();
 
 // Learn cards
 gsap.utils.toArray('.learn-card').forEach(function(el, i) {
@@ -3450,11 +3312,8 @@ gsap.to('.header-logo-img', {
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   PIN ENGINE — INTRO TEXT + PAIN CARDS
-   Uses GSAP ScrollTrigger's `pin` (position: fixed internally),
-   which works reliably on DESKTOP + MOBILE and is immune to
-   `overflow-x: hidden` on html/body ancestors (which breaks
-   native CSS `position: sticky` on iOS Safari).
+   PIN ENGINE — INTRO TEXT
+   Uses GSAP ScrollTrigger's `pin` (position: fixed internally).
    ═══════════════════════════════════════════════════════════ */
 (function(){
 
@@ -3467,15 +3326,6 @@ gsap.to('.header-logo-img', {
   var introOuter    = document.getElementById('intro-scroll-outer');
   var introSticky   = document.getElementById('intro-scroll-sticky');
   var introDisplay  = document.getElementById('intro-question-display');
-  var painSection   = document.getElementById('pain-points');
-  var painWrapper   = painSection
-                      ? painSection.querySelector('.pain-sticky-wrapper')
-                      : null;
-  var painInner     = document.getElementById('painStickyInner');
-  var painCardsCol  = document.getElementById('painCardsCol');
-  var painCards     = painCardsCol
-                      ? Array.from(painCardsCol.querySelectorAll('.pain-card'))
-                      : [];
 
   /* ════════════════════════════════
      PART A — INTRO SENTENCES SETUP
@@ -3520,80 +3370,8 @@ gsap.to('.header-logo-img', {
     });
   }
 
-  /* ════════════════════════════════
-     PART B — PAIN CARDS SETUP
-     ════════════════════════════════ */
-
-  if (painCardsCol) {
-    painCardsCol.style.cssText =
-      'position:relative;' +
-      'width:100%;' +
-      'min-height:260px;' +
-      'height:auto;';
-
-    painCards.forEach(function(card, i){
-      card.style.cssText =
-        'position:absolute;' +
-        'top:0;left:0;right:0;' +
-        'transform:translateY(50px) scale(0.93);' +
-        'width:100%;' +
-        'min-height:180px;' +
-        'box-sizing:border-box;' +
-        'display:flex;flex-direction:column;' +
-        'align-items:flex-start;justify-content:center;' +
-        'text-align:right;' +
-        'padding:28px 32px;' +
-        'border-radius:16px;' +
-        'border:1px solid rgba(255,255,255,0.08);' +
-        'opacity:' + (i === 0 ? '1' : '0') + ';' +
-        'transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1),' +
-                   'transform 0.45s cubic-bezier(0.22,1,0.36,1);' +
-        'will-change:opacity,transform;' +
-        'z-index:' + (i === 0 ? painCards.length : 0) + ';';
-    });
-    if (painCards[0]) {
-      painCards[0].style.opacity   = '1';
-      painCards[0].style.transform = 'translateY(0px) scale(1)';
-    }
-  }
-
-  /* Upcoming cards peek BEHIND the active one (stack effect).
-     Past cards slide up and fade out (released from the deck). */
-  var UP_SCALE   = [1,    0.96,  0.92,  0.88,  0.84];
-  var UP_Y       = [0,    18,    34,    48,    60];
-  var UP_OPACITY = [1,    0.62,  0.38,  0.22,  0.12];
-
-  function renderPainStack(activeIdx){
-    var total = painCards.length;
-    painCards.forEach(function(card, i){
-      if (i < activeIdx) {
-        /* Past card: slid up & faded */
-        card.style.opacity   = '0';
-        card.style.transform = 'translateY(-70px) scale(0.92)';
-        card.style.zIndex    = '0';
-        card.classList.add('behind');
-      } else {
-        /* Active (ahead=0) or upcoming (ahead>=1): stacked */
-        var ahead = i - activeIdx;
-        var s = UP_SCALE[ahead]   !== undefined ? UP_SCALE[ahead]   : 0.82;
-        var y = UP_Y[ahead]       !== undefined ? UP_Y[ahead]       : 70;
-        var o = UP_OPACITY[ahead] !== undefined ? UP_OPACITY[ahead] : 0.08;
-        card.style.opacity   = String(o);
-        card.style.transform = 'translateY(' + y + 'px) scale(' + s + ')';
-        card.style.zIndex    = String(total - ahead);
-        card.classList.remove('behind');
-      }
-    });
-
-    var dots = document.querySelectorAll('#painProgressDots .dot');
-    dots.forEach(function(d, di){
-      d.classList.toggle('active', di === activeIdx);
-    });
-  }
-
   /* Initial render */
   renderIntroStep(0);
-  renderPainStack(0);
 
   /* ════════════════════════════════
      PART C — BUILD PIN SCROLLTRIGGERS
@@ -3622,27 +3400,6 @@ gsap.to('.header-logo-img', {
     });
   }
 
-  /* PAIN: pin .pain-sticky-inner while scrolling through wrapper.
-     Scroll distance = painCards.length * viewport height. */
-  if (painWrapper && painInner && painCards.length) {
-    ScrollTrigger.create({
-      trigger: painWrapper,
-      start: 'top top',
-      end: function(){ return '+=' + (window.innerHeight * painCards.length); },
-      pin: painInner,
-      pinSpacing: true,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onUpdate: function(self){
-        var step = Math.min(
-          painCards.length - 1,
-          Math.floor(self.progress * painCards.length)
-        );
-        renderPainStack(step);
-      }
-    });
-  }
-
   /* Recalculate on resize/orientation change */
   window.addEventListener('resize', function(){
     ScrollTrigger.refresh();
@@ -3651,6 +3408,100 @@ gsap.to('.header-logo-img', {
     setTimeout(function(){ ScrollTrigger.refresh(); }, 200);
   }, { passive: true });
 
+})();
+</script>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   PAIN POINTS — step-based pinned card stack
+   Pins .pain-sticky-inner while the user scrolls through the
+   four cards. Each card owns one viewport-height of scroll.
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  var section  = document.getElementById('pain-points');
+  var wrapper  = document.getElementById('painStickyWrapper');
+  var inner    = document.getElementById('painStickyInner');
+  var col      = document.getElementById('painCardsCol');
+  if (!section || !wrapper || !inner || !col) return;
+
+  var cards = Array.from(col.querySelectorAll('.pain-card'));
+  if (!cards.length) return;
+
+  /* Column must act as stacking parent for absolutely positioned cards. */
+  col.style.position  = 'relative';
+  col.style.minHeight = '260px';
+
+  /* Base card styles — all cards share the same absolute slot. */
+  cards.forEach(function(card){
+    card.style.position   = 'absolute';
+    card.style.top        = '0';
+    card.style.left       = '0';
+    card.style.right      = '0';
+    card.style.width      = '100%';
+    card.style.willChange = 'transform, opacity';
+    card.style.transition = 'transform 0.55s cubic-bezier(0.22,1,0.36,1),' +
+                            ' opacity 0.45s ease';
+  });
+
+  /* Stack offsets for cards BEHIND the active card (peek upward). */
+  var BEHIND_Y       = [0, -16, -30, -42];
+  var BEHIND_SCALE   = [1, 0.96, 0.92, 0.88];
+  var BEHIND_OPACITY = [1, 0.78, 0.52, 0.28];
+
+  function renderStep(activeIdx){
+    var total = cards.length;
+    cards.forEach(function(card, i){
+      if (i < activeIdx) {
+        /* Past card — slide down and fade out. */
+        card.style.transform = 'translateY(80px) scale(0.94)';
+        card.style.opacity   = '0';
+        card.style.zIndex    = '0';
+      } else if (i === activeIdx) {
+        /* Active card — front and centre. */
+        card.style.transform = 'translateY(0) scale(1)';
+        card.style.opacity   = '1';
+        card.style.zIndex    = '10';
+      } else {
+        /* Upcoming card — stacked behind (peek upward). */
+        var depth = i - activeIdx;
+        var y = BEHIND_Y[depth]       !== undefined ? BEHIND_Y[depth]       : -54;
+        var s = BEHIND_SCALE[depth]   !== undefined ? BEHIND_SCALE[depth]   : 0.84;
+        var o = BEHIND_OPACITY[depth] !== undefined ? BEHIND_OPACITY[depth] : 0.12;
+        card.style.transform = 'translateY(' + y + 'px) scale(' + s + ')';
+        card.style.opacity   = String(o);
+        card.style.zIndex    = String(10 - depth);
+      }
+    });
+
+    /* Sync progress dots with active index. */
+    var dots = document.querySelectorAll('#painProgressDots .dot');
+    dots.forEach(function(d, di){
+      d.classList.toggle('active', di === activeIdx);
+    });
+  }
+
+  renderStep(0);
+
+  ScrollTrigger.create({
+    trigger:            wrapper,
+    start:              'top top',
+    end:                function(){ return '+=' + (window.innerHeight * cards.length); },
+    pin:                inner,
+    pinSpacing:         true,
+    anticipatePin:      1,
+    invalidateOnRefresh: true,
+    onUpdate: function(self){
+      var step = Math.min(
+        cards.length - 1,
+        Math.floor(self.progress * cards.length)
+      );
+      renderStep(step);
+    }
+  });
 })();
 </script>
 
